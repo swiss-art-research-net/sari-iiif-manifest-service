@@ -7,6 +7,7 @@ services:
     restart: unless-stopped
     environment:
       - FIELD_DEFINITIONS_YML=${FIELD_DEFINITIONS_YML}
+      - NAMESPACE=${NAMESPACE}
       - HOST_LOCATION=${HOST_NAME}
       - SPARQL_ENDPOINT=${SPARQL_ENDPOINT}
     volumes:
