@@ -7,8 +7,9 @@ from lib.IiifManifestGenerator import IiifManifestGenerator
 
 app = FastAPI()
 
-# Read endpoint from environment variable
+# Read paramaters from environment variables
 sparqlEndpoint = os.environ['SPARQL_ENDPOINT']
+fieldDefinitionsYml = os.environ['FIELD_DEFINITIONS_YML']
 
 manifest = IiifManifestGenerator(sparqlEndpoint=sparqlEndpoint, fieldDefinitions={})
 

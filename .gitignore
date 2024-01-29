@@ -1,3 +1,8 @@
+# Local configuration
 .env
 docker-compose.override.yml
 __pycache__
+
+# Folder structure
+config/*.*
+!config/.gitkeep

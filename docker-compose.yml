@@ -6,5 +6,8 @@ services:
     container_name: ${PROJECT_NAME}_api
     restart: unless-stopped
     environment:
+      - FIELD_DEFINITIONS_YML=${FIELD_DEFINITIONS_YML}
       - HOST_LOCATION=${HOST_NAME}
       - SPARQL_ENDPOINT=${SPARQL_ENDPOINT}
+    volumes:
+      - ./config:/config

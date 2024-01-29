@@ -11,7 +11,10 @@ RUN pip install fastapi "uvicorn[standard]"
 
 # Prepare directories and volumes
 RUN mkdir /scripts
+RUN mkdir /config
 WORKDIR /scripts
+
+VOLUME /config
 
 # Run idling
 ENTRYPOINT tail -f /dev/null
