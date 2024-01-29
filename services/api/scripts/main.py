@@ -2,7 +2,11 @@ from typing import Union
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
+from lib.IiifManifestGenerator import IiifManifestGenerator
+
 app = FastAPI()
+
+manifest = IiifManifestGenerator(sparqlEndpoint="http://blazegraph:8080/blazegraph/sparql", fieldDefinitions={})
 
 @app.get("/", response_class=HTMLResponse)
 def readRoot():
@@ -23,4 +27,4 @@ def getManifest(item_type: str, item_id: str):
     return _getManifest(type=item_type, id=item_id)
 
 def _getManifest(*, type: str, id: str) -> dict:
-    return {"type": type, "id": id}
+    return manifest.generate(itemType=type, itemId=id)
