@@ -9,9 +9,9 @@ from lib.IiifManifestGenerator import IiifManifestGenerator
 app = FastAPI()
 
 # Read paramaters from environment variables
-sparqlEndpoint = os.environ['SPARQL_ENDPOINT']
+SPARQL_ENDPOINT = os.environ['SPARQL_ENDPOINT']
+NAMESPACE = os.environ['NAMESPACE']
 fieldDefinitionsYml = os.environ['FIELD_DEFINITIONS_YML']
-namespace = os.environ['NAMESPACE']
 
 # Read field definitions from YAML file
 fieldDefinitions = {}
@@ -22,7 +22,11 @@ if os.path.isfile(fieldDefinitionsYml):
         except yaml.YAMLError as exc:
             print(exc)
 
-manifest = IiifManifestGenerator(sparqlEndpoint=sparqlEndpoint)
+FIELDS = {}
+for d in fieldDefinitions['fields']:
+    FIELDS[d['id']] = [query['select'] for query in d['queries'] if 'select' in query ][0]
+
+manifest = IiifManifestGenerator(sparqlEndpoint=SPARQL_ENDPOINT)
 
 @app.get("/", response_class=HTMLResponse)
 def readRoot():
@@ -43,8 +47,5 @@ def getManifest(item_type: str, item_id: str):
     return _getManifest(type=item_type, id=item_id)
 
 def _getManifest(*, type: str, id: str) -> dict:
-    subject = f"{namespace}{type}/{id}"
-    fields = {}
-    for d in fieldDefinitions['fields']:
-        fields[d['id']] = [query['select'] for query in d['queries']][0]
-    return manifest.generate(subject=subject, fields=fields, namespaces=fieldDefinitions['namespaces'])
+    subject = f"{NAMESPACE}{type}/{id}"
+    return manifest.generate(subject=subject, fields=FIELDS, namespaces=fieldDefinitions['namespaces'])
