@@ -10,5 +10,12 @@ services:
       - NAMESPACE=${NAMESPACE}
       - HOST_LOCATION=${HOST_NAME}
       - SPARQL_ENDPOINT=${SPARQL_ENDPOINT}
+    networks:
+      - default
     volumes:
       - ./config:/config
+
+networks:
+  default:
+    name: ${DOCKER_NETWORK}
+    external: true
