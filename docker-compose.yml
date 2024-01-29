@@ -1,0 +1,9 @@
+version: "3"
+services:
+
+  api:
+    build: ./services/api
+    container_name: ${PROJECT_NAME}_api
+    restart: unless-stopped
+    environment:
+      - HOST_LOCATION=${HOST_NAME}
