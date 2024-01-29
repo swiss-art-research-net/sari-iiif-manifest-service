@@ -7,3 +7,4 @@ services:
     restart: unless-stopped
     environment:
       - HOST_LOCATION=${HOST_NAME}
+      - SPARQL_ENDPOINT=${SPARQL_ENDPOINT}

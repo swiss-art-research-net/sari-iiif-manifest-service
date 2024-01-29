@@ -1,3 +1,4 @@
+import os
 from typing import Union
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
@@ -6,7 +7,10 @@ from lib.IiifManifestGenerator import IiifManifestGenerator
 
 app = FastAPI()
 
-manifest = IiifManifestGenerator(sparqlEndpoint="http://blazegraph:8080/blazegraph/sparql", fieldDefinitions={})
+# Read endpoint from environment variable
+sparqlEndpoint = os.environ['SPARQL_ENDPOINT']
+
+manifest = IiifManifestGenerator(sparqlEndpoint=sparqlEndpoint, fieldDefinitions={})
 
 @app.get("/", response_class=HTMLResponse)
 def readRoot():
