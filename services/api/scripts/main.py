@@ -18,7 +18,11 @@ def _loadFieldDefinitions(inputFile):
                 print(exc)
     if fieldDefinitions:
         for d in fieldDefinitions['fields']:
-            extractedFields[d['id']] = [query['select'] for query in d['queries'] if 'select' in query ][0]
+            extractedFields[d['id']] = {
+                "label": d['label'],
+                "datatype": d['datatype'],
+                "query": [query['select'] for query in d['queries'] if 'select' in query ][0]
+            }
         namespaces = fieldDefinitions['namespaces']
         return {
             'queries': extractedFields,
@@ -32,7 +36,7 @@ SPARQL_ENDPOINT = os.environ['SPARQL_ENDPOINT']
 NAMESPACE = os.environ['NAMESPACE']
 FIELDS = _loadFieldDefinitions(os.environ['FIELD_DEFINITIONS_YML'])
 
-manifest = IiifManifestGenerator(sparqlEndpoint=SPARQL_ENDPOINT)
+manifest = IiifManifestGenerator(sparqlEndpoint=SPARQL_ENDPOINT, fields=FIELDS['queries'], namespaces=FIELDS['namespaces'])
 
 @app.get("/", response_class=HTMLResponse)
 def readRoot():
@@ -54,4 +58,4 @@ def getManifest(item_type: str, item_id: str):
 
 def _getManifest(*, type: str, id: str) -> dict:
     subject = f"{NAMESPACE}{type}/{id}"
-    return manifest.generate(subject=subject, fields=FIELDS)
+    return manifest.generate(subject=subject)
