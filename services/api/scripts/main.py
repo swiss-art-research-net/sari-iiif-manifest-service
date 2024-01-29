@@ -4,9 +4,12 @@ from fastapi import FastAPI
 app = FastAPI()
 
 @app.get("/")
-def read_root():
-    return {"Hello": "World"}
+def readRoot():
+    return {"SARI IIIF Manifest Service": "v0.1"}
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str = None):
-    return {"item_id": item_id, "q": q}
+@app.get("/manifest/{item_type}/{item_id}")
+def getManifest(item_type: str, item_id: str):
+    return _getManifest(type=item_type, id=item_id)
+
+def _getManifest(*, type: str, id: str) -> dict:
+    return {"type": type, "id": id}
