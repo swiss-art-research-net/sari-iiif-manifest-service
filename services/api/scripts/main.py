@@ -1,11 +1,22 @@
 from typing import Union
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 
 app = FastAPI()
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def readRoot():
-    return {"SARI IIIF Manifest Service": "v0.1"}
+    return """
+    <html>
+        <head>
+            <title>SARI IIIF Manifest Service</title>
+        </head>
+        <body>
+            <h1>SARI IIIF Manifest Service</h1>
+            <p>Use the following URL to retrieve a manifest:</p>
+            <pre>/manifest/{item_type}/{item_id}</pre>
+        </body>
+    </html>"""
 
 @app.get("/manifest/{item_type}/{item_id}")
 def getManifest(item_type: str, item_id: str):
