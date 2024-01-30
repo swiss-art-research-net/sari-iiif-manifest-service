@@ -3,11 +3,21 @@ import yaml
 from typing import Union
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from lib.IiifManifestGenerator import IiifManifestGenerator
 from lib.DataConnector import FieldConnector
 
 app = FastAPI()
+
+# Allow all origins to access your API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Inititialise parameters
 SPARQL_ENDPOINT = os.environ['SPARQL_ENDPOINT']
