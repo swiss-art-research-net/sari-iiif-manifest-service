@@ -2,7 +2,6 @@
 Class for generating IIIF manifests based on data retrieved from a SPARQL endpoint.
 Metadata is retrieved from the SPARQL endpoint through the use of field definitions.
 """
-from string import Template
 class IiifManifestGenerator:
 
     def __init__(self, *, baseUri: str = "http://example.org/manifests/"):

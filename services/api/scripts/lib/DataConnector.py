@@ -61,20 +61,13 @@ class FieldConnector:
     
     def getMetadataForSubject(self, subject: str) -> dict:
         metadata = []
-    
-        labelQueryTemplate = Template("""
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            SELECT ?label (LANG(?label) as ?language WHERE {
-                <$uri> rdfs:label ?label .
-            }
-        """)
 
         namespaces = ""
         for prefix, namespace in self.namespaces.items():
             namespaces += "PREFIX " + prefix + ": <" + namespace + ">\n"
         
         for field in self.fields.values():
-            query = namespaces + field['query'].replace("$subject", "<%s>" % subject)
+            query = namespaces + field['query'].replace("$subject", "<%s>" % subject).replace("?subject", "<%s>" % subject)
             self.sparql.setQuery(query)
             try:
                 result = self._sparqlResultToDict(self.sparql.query().convert())
@@ -87,12 +80,7 @@ class FieldConnector:
                 for row in result:
                     value = row['value']
                     if not 'label' in result and field['datatype'] == 'xsd:anyURI':
-                        self.sparql.setQuery(labelQueryTemplate.substitute(uri=value))
-                        labelResult = self._sparqlResultToDict(self.sparql.query().convert())
-                        try:
-                            label = labelResult[0]['label']
-                        except:
-                            label = False
+                        label = self.getLabelForSubject(value)
                     else:
                         label = result[0]['value']
                     valueLabels.append(label)

@@ -47,6 +47,6 @@ def _getManifest(*, type: str, id: str) -> dict:
 
 def _getDataForSubject(subject: str) -> dict:
     label = connector.getLabelForSubject(subject)
-    metadata = []
+    metadata = connector.getMetadataForSubject(subject)
     images = []
     return label, metadata, images
