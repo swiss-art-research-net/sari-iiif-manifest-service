@@ -36,6 +36,27 @@ class FieldConnector:
                 }
             self.namespaces = fieldDefinitions['namespaces']
 
+    def getImagesForSubject(self, subject: str) -> list:
+        imageQueryTemplate = Template("""
+            PREFIX aat: <http://vocab.getty.edu/aat/>
+            PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+            PREFIX la: <https://linked.art/ns/terms/>
+            SELECT ?image ?width ?height WHERE {
+                <$uri> crm:P138i_has_representation?/la:digitally_shown_by ?imageObject .
+                ?imageObject la:digitally_available_via/la:access_point ?image ;
+                    crm:P43_has_dimension ?dimWidth ;
+                    crm:P43_has_dimension ?dimHeight .
+                ?dimWidth crm:P2_has_type aat:300055647 ;
+                    crm:P90_has_value ?width .
+                ?dimHeight crm:P2_has_type aat:300055644 ;
+                    crm:P90_has_value ?height .
+            }
+        """)
+        imageQuery = imageQueryTemplate.substitute(uri=subject)
+        self.sparql.setQuery(imageQuery)
+        images = self._sparqlResultToDict(self.sparql.query().convert())
+        return images
+    
     def getLabelForSubject(self, subject: str) -> str:
         labelQueryTemplate = Template("""
             PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>

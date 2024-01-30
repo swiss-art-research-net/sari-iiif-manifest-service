@@ -19,6 +19,7 @@ class IiifManifestGenerator:
             "label": {
                 "none": [label]
             },
-            "metadata": metadata
+            "metadata": metadata,
+            "images": images
         }
         return manifest
