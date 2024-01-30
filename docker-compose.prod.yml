@@ -19,7 +19,6 @@ services:
     - proxy
 
 networks:
-  internal:
   proxy:
     name: ${PROXY_NETWORK_NAME}
     external: true
