@@ -42,10 +42,11 @@ def getManifest(item_type: str, item_id: str):
 def _getManifest(*, type: str, id: str) -> dict:
     subject = f"{NAMESPACE_ENTITIES}{type}/{id}"
     manifestId = f"{type}/{id}"
-    metadata, images = _getDataForSubject(subject)
-    return manifest.generate(id=manifestId, images=images, metadata=metadata)
+    label, metadata, images = _getDataForSubject(subject)
+    return manifest.generate(id=manifestId, label=label, images=images, metadata=metadata)
 
 def _getDataForSubject(subject: str) -> dict:
+    label = "Placeholder label"
     metadata = []
     images = []
-    return metadata, images
+    return label, metadata, images

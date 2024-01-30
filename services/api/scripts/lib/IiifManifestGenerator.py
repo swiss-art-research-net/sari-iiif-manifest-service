@@ -11,14 +11,14 @@ class IiifManifestGenerator:
         """
         self.baseUri = baseUri
 
-    def generate(self, *, id: str, images: list, metadata: list) -> dict:
+    def generate(self, *, id: str, label: str, images: list, metadata: list) -> dict:
         manifest = {
             "@context": "http://iiif.io/api/presentation/3/context.json",
             "id": f"{self.baseUri}{id}",
             "items": [],
             "type": "Manifest",
             "label": {
-                "none": ["Placeholder label"]
+                "none": [label]
             },
             "metadata": metadata
         }
