@@ -1,6 +1,28 @@
+"""
+Entry point for the FastAPI application. Configuration is done via environment variables.
+
+SPARQL_ENDPOINT: 
+    The endpoint for the SPARQL service to query data from.
+
+NAMESPACE_ENTITIES: 
+    The namespace for entities. This is used to construct the URI for the subject based on 
+    a type and ID. For example, for entities of the form 'http://example.com/object/123', 
+    the namespace would be 'http://example.com/', the type would be 'object', and the ID
+    would be '123'.
+
+NAMESPACE_MANIFESTS:
+    The namespace for manifests. This is used to construct the URI for the manifest based
+    on a type and ID. For example, for manifests of the form 'http://iiif.example.com/manifest/object/123',
+    the namespace would be 'http://iiif.example.com/', the type would be 'object', and the ID
+
+FIELD_DEFINITIONS_YML:
+    The path to the YAML file containing field definitions. It uses the sari-field-definitions-generator
+    format.
+
+To run the application, use a command like 'uvicorn main:app'.
+"""
+
 import os
-import yaml
-from typing import Union
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,6 +47,7 @@ NAMESPACE_ENTITIES = os.environ['NAMESPACE_ENTITIES']
 NAMESPACE_MANIFESTS = os.environ['NAMESPACE_MANIFESTS']
 FIELD_DEFINITIONS_YML = os.environ['FIELD_DEFINITIONS_YML']
 
+# Initialise manifest generator and data connector
 manifest = IiifManifestGenerator(baseUri=NAMESPACE_MANIFESTS)
 connector = FieldConnector(sparqlEndpoint=SPARQL_ENDPOINT)
 
