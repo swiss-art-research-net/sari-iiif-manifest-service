@@ -20,6 +20,40 @@ class IiifManifestGenerator:
                 "none": [label]
             },
             "metadata": metadata,
-            "images": images
         }
+        manifest['items'] = self.generateImageItems(images)
         return manifest
+    
+    def generateImageItems(self, images: list) -> list:
+        items = []
+        for i, image in enumerate(images):
+            canvas = {
+                "id": "%s/image/%d/canvas" % (self.baseUri, i),
+                "type": "Canvas",
+                "width": int(image['width']),
+                "height": int(image['height']),
+                "items": [{
+                        "id": "%s/image/%d/canvas/page" % (self.baseUri, i),
+                        "type": "AnnotationPage",
+                        "items": [{
+                            "id": "%s/image/%d/canvas/page/annotation" % (self.baseUri, i),
+                            "type": "Annotation",
+                            "motivation": "painting",
+                            "body": {
+                                "id": "%s/full/max/0/default.jpg" % image['image'],
+                                "type": "Image",
+                                "format": "image/jpeg",
+                                "width": int(image['width']),
+                                "height": int(image['height']),
+                                "service": [{
+                                    "id": image['image'],
+                                    "profile": "level1",
+                                    "type": "ImageService3"
+                                }]
+                            },
+                            "target": "%s/image/%d/canvas" % (self.baseUri, i)
+                        }]
+                    }]
+            }
+            items.append(canvas)
+        return items
