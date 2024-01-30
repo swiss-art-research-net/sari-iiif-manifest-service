@@ -1,0 +1,24 @@
+version: "3.4"
+services:
+  API:
+    environment:
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+      LETSENCRYPT_HOST: ${HOST_NAME}
+      VIRTUAL_HOST: ${HOST_NAME}
+      VIRTUAL_PORT: 5000
+    healthcheck:
+      test: wget -q http://0.0.0.0:5000 || exit 1
+      interval: 1m30s
+      timeout: 30s
+      retries: 2
+      start_period: 40s
+    labels:
+      - "autoheal=true"
+    networks:
+    - proxy
+
+networks:
+  internal:
+  proxy:
+    name: ${PROXY_NETWORK_NAME}
+    external: true
