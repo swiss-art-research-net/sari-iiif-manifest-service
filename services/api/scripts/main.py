@@ -46,7 +46,7 @@ def _getManifest(*, type: str, id: str) -> dict:
     return manifest.generate(id=manifestId, label=label, images=images, metadata=metadata)
 
 def _getDataForSubject(subject: str) -> dict:
-    label = "Placeholder label"
+    label = connector.getLabelForSubject(subject)
     metadata = []
     images = []
     return label, metadata, images

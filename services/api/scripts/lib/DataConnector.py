@@ -3,6 +3,7 @@ import yaml
 from SPARQLWrapper import SPARQLWrapper, JSON
 from pydantic import BaseModel
 
+from string import Template
 class FieldConnector:
 
     def __init__(self, *, sparqlEndpoint: str):
@@ -35,7 +36,28 @@ class FieldConnector:
                 }
             self.namespaces = fieldDefinitions['namespaces']
 
+    def getLabelForSubject(self, subject: str) -> str:
+        labelQueryTemplate = Template("""
+            PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+            SELECT ?label WHERE {
+                {
+                    <$uri> skos:prefLabel ?l1 .
+                } UNION {
+                    <$uri> rdfs:label ?l2.
+                } UNION {
+                    <$uri> crm:P190_has_symbolic_content ?l3 .
+                } UNION {
+                    <$uri> crm:P90_has_value ?l4 .
+                }
+                BIND(COALESCE(?l1, ?l2, ?l3, ?l4) AS ?label)
+            } LIMIT 1
+        """)
 
+        self.sparql.setQuery(labelQueryTemplate.substitute(uri=subject))
+        result = self._sparqlResultToDict(self.sparql.query().convert())
+        return result[0]['label']
     
     def getMetadataForSubject(self, subject: str) -> dict:
         metadata = []
