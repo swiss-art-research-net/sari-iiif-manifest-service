@@ -1,15 +1,85 @@
+"""
+Class to query data from a SPARQL endpoint based on field definitions.
+The field definitions should be defined in the format of the sari-field-definitions-generator (https://github.com/swiss-art-research-net/sari-field-definitions-generator).
+
+The class uses default query templates to retrieve images and labels. These can be overwritten by providing custom templates.
+
+Example:
+    connector = FieldConnector(sparqlEndpoint="http://blazegraph:8080/blazegraph/sparql")
+    connector.loadFieldDefinitionsFromFile("fieldDefinitions.yml")
+
+    images = connector.getImagesForSubject("http://example.com/object/123")
+    metadata = connector.getMetadataForSubject("http://example.com/object/123")
+    label = connector.getLabelForSubject("http://example.com/object/123")
+
+Methods:
+
+    loadFieldDefinitionsFromFile(inputFile: str)
+        Load field definitions from a YAML file.
+
+    getImagesForSubject(subject: str) -> list
+        Get images for a given URI.
+
+    getLabelForSubject(subject: str) -> str
+        Get label for a URI.
+
+    getMetadataForSubject(subject: str) -> dict
+        Get the values for all fields for a given URI.
+
+    setLabelQueryTemplate(template: str)
+        Set the template for the label query. Provide a SPARQL SELECT query with a <$uri> placeholder and a ?label variable.
+
+    setImageQueryTemplate(template: str)
+        Set the template for the image query. Provide a SPARQL SELECT query with a <$uri> placeholder and ?image, ?width, and ?height variables.       
+"""
+
 import os
 import yaml
 from SPARQLWrapper import SPARQLWrapper, JSON
-from pydantic import BaseModel
 
 from string import Template
 class FieldConnector:
 
-    def __init__(self, *, sparqlEndpoint: str):
+    LABEL_QUERY = """
+            PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+            SELECT ?label WHERE {
+                {
+                    <$uri> skos:prefLabel ?l1 .
+                } UNION {
+                    <$uri> rdfs:label ?l2.
+                } UNION {
+                    <$uri> crm:P190_has_symbolic_content ?l3 .
+                } UNION {
+                    <$uri> crm:P90_has_value ?l4 .
+                }
+                BIND(COALESCE(?l1, ?l2, ?l3, ?l4) AS ?label)
+            } LIMIT 1
+        """
+    
+    IMAGE_QUERY = """
+            PREFIX aat: <http://vocab.getty.edu/aat/>
+            PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+            PREFIX la: <https://linked.art/ns/terms/>
+            SELECT ?image ?width ?height WHERE {
+                <$uri> crm:P138i_has_representation?/la:digitally_shown_by ?imageObject .
+                ?imageObject la:digitally_available_via/la:access_point ?image ;
+                    crm:P43_has_dimension ?dimWidth ;
+                    crm:P43_has_dimension ?dimHeight .
+                ?dimWidth crm:P2_has_type aat:300055647 ;
+                    crm:P90_has_value ?width .
+                ?dimHeight crm:P2_has_type aat:300055644 ;
+                    crm:P90_has_value ?height .
+            }
+        """
+
+    def __init__(self, *, sparqlEndpoint: str, labelQueryTemplate=LABEL_QUERY, imageQueryTemplate=IMAGE_QUERY):
         self.endpoint = sparqlEndpoint
         self.fields = {}
         self.namespaces = {}
+        self.labelQueryTemplate = labelQueryTemplate
+        self.imageQueryTemplate = imageQueryTemplate
 
         # Test connection
         self.sparql = SPARQLWrapper(self.endpoint)
@@ -21,6 +91,9 @@ class FieldConnector:
             raise Exception("Could not connect to SPARQL endpoint.")
 
     def loadFieldDefinitionsFromFile(self, inputFile: str):
+        """
+        Load field definitions from a YAML file.
+        """
         if os.path.isfile(inputFile):
             with open(inputFile, 'r') as stream:
                 try:
@@ -37,52 +110,31 @@ class FieldConnector:
             self.namespaces = fieldDefinitions['namespaces']
 
     def getImagesForSubject(self, subject: str) -> list:
-        imageQueryTemplate = Template("""
-            PREFIX aat: <http://vocab.getty.edu/aat/>
-            PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
-            PREFIX la: <https://linked.art/ns/terms/>
-            SELECT ?image ?width ?height WHERE {
-                <$uri> crm:P138i_has_representation?/la:digitally_shown_by ?imageObject .
-                ?imageObject la:digitally_available_via/la:access_point ?image ;
-                    crm:P43_has_dimension ?dimWidth ;
-                    crm:P43_has_dimension ?dimHeight .
-                ?dimWidth crm:P2_has_type aat:300055647 ;
-                    crm:P90_has_value ?width .
-                ?dimHeight crm:P2_has_type aat:300055644 ;
-                    crm:P90_has_value ?height .
-            }
-        """)
+        """
+        Get images for a given URI.
+        """
+        imageQueryTemplate = Template(self.imageQueryTemplate)
         imageQuery = imageQueryTemplate.substitute(uri=subject)
         self.sparql.setQuery(imageQuery)
         images = self._sparqlResultToDict(self.sparql.query().convert())
         return images
     
     def getLabelForSubject(self, subject: str) -> str:
-        labelQueryTemplate = Template("""
-            PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-            SELECT ?label WHERE {
-                {
-                    <$uri> skos:prefLabel ?l1 .
-                } UNION {
-                    <$uri> rdfs:label ?l2.
-                } UNION {
-                    <$uri> crm:P190_has_symbolic_content ?l3 .
-                } UNION {
-                    <$uri> crm:P90_has_value ?l4 .
-                }
-                BIND(COALESCE(?l1, ?l2, ?l3, ?l4) AS ?label)
-            } LIMIT 1
-        """)
+        """
+        Get label for a URI.
+        """
+        labelQueryTemplate = Template(self.labelQueryTemplate)
 
         self.sparql.setQuery(labelQueryTemplate.substitute(uri=subject))
         result = self._sparqlResultToDict(self.sparql.query().convert())
         return result[0]['label']
     
     def getMetadataForSubject(self, subject: str) -> dict:
-        metadata = []
+        """
+        Get the values for all fields for a given URI.
+        """
 
+        metadata = []
         namespaces = ""
         for prefix, namespace in self.namespaces.items():
             namespaces += "PREFIX " + prefix + ": <" + namespace + ">\n"
@@ -115,7 +167,24 @@ class FieldConnector:
                 })
         return metadata
     
+    def setLabelQueryTemplate(self, template: str):
+        """
+        Set the template for the label query. 
+        Provide a SPARQL SELECT query with a <$uri> placeholder and a ?label variable.
+        """
+        self.labelQueryTemplate = template
+
+    def setImageQueryTemplate(self, template: str):
+        """
+        Set the template for the image query.
+        Provide a SPARQL SELECT query with a <$uri> placeholder and ?image, ?width, and ?height variables.
+        """
+        self.imageQueryTemplate = template
+    
     def _sparqlResultToDict(self, results):
+        """
+        Convert SPARQL results to a list of dictionaries.
+        """
         rows = []
         for result in results["results"]["bindings"]:
             row = {}
