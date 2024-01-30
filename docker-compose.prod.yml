@@ -1,6 +1,7 @@
 version: "3.4"
 services:
-  API:
+  
+  api:
     environment:
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
       LETSENCRYPT_HOST: ${HOST_NAME}
