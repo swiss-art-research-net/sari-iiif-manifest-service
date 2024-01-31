@@ -10,11 +10,11 @@ RUN locale-gen en_US.UTF-8
 RUN pip install fastapi "uvicorn[standard]" sparqlwrapper pydantic
 
 # Add scripts
-ADD ./scripts /scripts
+ADD ./src /src
+ADD ./config /config
 
 # Prepare directories and volumes
-RUN mkdir /config
-WORKDIR /scripts
+WORKDIR /src
 
 VOLUME /config
 

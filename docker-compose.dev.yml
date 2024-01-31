@@ -6,4 +6,4 @@ services:
     ports:
       - "${PORT_DEV}:8080"
     volumes:
-      - ./services/api/scripts:/scripts
+      - ./src:/src

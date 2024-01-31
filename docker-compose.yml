@@ -2,7 +2,7 @@ version: "3"
 services:
 
   api:
-    build: ./services/api
+    build: .
     image: swissartresearx/sari-iiif-manifest-service:1.0.0
     container_name: ${PROJECT_NAME}_api
     restart: unless-stopped
