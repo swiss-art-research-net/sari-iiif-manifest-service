@@ -3,15 +3,15 @@ fieldDefinitionsFile: ./defaultFieldDefinitions.yml
 
 # Namespaces for retrieving and generating URIs
 namespaces:
-    # The namespace for entities. This is used to construct the URI for the subject based on 
-    # a type and ID. For example, for entities of the form 'https://example.org/object/123', 
-    # the namespace would be 'https://example.org/', the type would be 'object', and the ID
-    # would be '123'.
+    # The namespace for entities. This is used to construct the URI for retrieving the subject 
+    # based on a type and ID. For example, for entities of the form 'https://example.org/object/123', 
+    # the namespace would be 'https://example.org/'. (The type would be 'object', and the ID
+    # would be '123'. These URIs must exist in the triplestore)
     entities: https://example.org/
 
     # The namespace for manifests. This is used to construct the URI for the manifest based
     # on a type and ID. For example, for manifests of the form 'http://iiif.example.com/manifest/object/123',
-    # the namespace would be 'http://iiif.example.com/', the type would be 'object', and the ID
+    # the namespace would be 'http://iiif.example.com/'.
     manifests: http://iiif.example.com/
 
 # Queries for retrieving labels and images for URIs
