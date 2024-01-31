@@ -1,3 +1,11 @@
+"""
+Class that provides the application logic for the IIIF Manifest Service API
+
+Usage:
+    api = Api(configYmlPath="config.yml", sparqlEndpoint="http://example.org/sparql")
+    manifest = api.getManifest(type="example", id="123")
+"""
+
 import os
 import yaml
 import sys

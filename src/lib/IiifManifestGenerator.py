@@ -1,6 +1,5 @@
 """
-Class for generating IIIF manifests based on data retrieved from a SPARQL endpoint.
-Metadata is retrieved from the SPARQL endpoint through the use of field definitions.
+Class for generating IIIF manifests based on images and metadata.
 
 Usage:
     generator = IiifManifestGenerator(baseUri="http://example.org/manifests/")
