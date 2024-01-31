@@ -2,31 +2,33 @@ class Cache:
 
     def __init__(self, path: str, *, expiry: str = '1w'):
         self.cacheStorage = {}
+        self.cacheDirectory = path
+        self.cacheExpiry = Cache._parseTimeString(expiry)
 
     def cache(self, func):
         def wrapper(*args, **kwargs):
             key = func.__name__ + str(args) + str(kwargs)
-            if self.isInCache(key):
-                return self.retrieveFromCache(key)
+            if self._isInCache(key):
+                return self._retrieveFromCache(key)
             else:
                 value = func(*args, **kwargs)
-                self.storeInCache(key, value)
+                self._storeInCache(key, value)
                 return value
         return wrapper
     
-    def isInCache(self, key):
+    def _isInCache(self, key):
         return (key in self.cacheStorage)
     
-    def retrieveFromCache(self, key):
+    def _retrieveFromCache(self, key):
         if key in self.cacheStorage:
             return self.cacheStorage[key]
         else:
             return None
         
-    def storeInCache(self, key, value):
+    def _storeInCache(self, key, value):
         self.cacheStorage[key] = value
     
-    def parseTimeString(timeStr: str):
+    def _parseTimeString(timeStr: str):
         unitMap = {
             's': 1,
             'm': 60,
