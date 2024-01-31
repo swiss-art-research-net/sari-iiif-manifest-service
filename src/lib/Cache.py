@@ -1,7 +1,11 @@
+from os import remove as removeFile
+from os.path import exists, getmtime, join
+
+import pickle
+import time
 class Cache:
 
     def __init__(self, path: str, *, expiry: str = '1w'):
-        self.cacheStorage = {}
         self.cacheDirectory = path
         self.cacheExpiry = Cache._parseTimeString(expiry)
 
@@ -15,18 +19,35 @@ class Cache:
                 self._storeInCache(key, value)
                 return value
         return wrapper
-    
+
+    def _deleteIfExpired(self, key):
+        filepath = self._generateFilePath(key)
+        if exists(filepath):
+            lastModified = getmtime(filepath)
+            if lastModified + self.cacheExpiry < time.time():
+                removeFile(filepath)
+
+    def _generateFilePath(self, key):
+        return join(self.cacheDirectory, self._generateFilename(key))
+
+    def _generateFilename(self, key):
+        return str(hash(key)) + '.pickle'
+
     def _isInCache(self, key):
-        return (key in self.cacheStorage)
+        self._deleteIfExpired(key)
+        return exists(self._generateFilePath(key))
     
     def _retrieveFromCache(self, key):
-        if key in self.cacheStorage:
-            return self.cacheStorage[key]
-        else:
-            return None
+        filepath = self._generateFilePath(key)
+        if exists(filepath):
+            with open(filepath, 'rb') as f:
+                value = pickle.load(f)
+                return value
         
     def _storeInCache(self, key, value):
-        self.cacheStorage[key] = value
+        filepath = self._generateFilePath(key)
+        with open(filepath, 'wb') as f:
+            pickle.dump(value, f)
     
     def _parseTimeString(timeStr: str):
         unitMap = {
