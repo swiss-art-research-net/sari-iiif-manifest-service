@@ -12,6 +12,7 @@ services:
     networks:
       - default
     volumes:
+      - ./cache:/cache
       - ./config:/config
 
 networks:
