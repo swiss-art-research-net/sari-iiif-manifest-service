@@ -114,9 +114,15 @@ class FieldConnector:
         Get images for a given URI.
         """
         imageQueryTemplate = Template(self.imageQueryTemplate)
-        imageQuery = imageQueryTemplate.substitute(uri=subject)
-        self.sparql.setQuery(imageQuery)
-        images = self._sparqlResultToDict(self.sparql.query().convert())
+        query = imageQueryTemplate.substitute(uri=subject)
+        
+        self.sparql.setQuery(query)
+        try:
+            queryResult = self.sparql.query().convert()
+        except Exception as e:
+            print(e)
+            raise Exception("Could not execute query: %s" % query)
+        images = self._sparqlResultToDict(queryResult)
         return images
     
     def getLabelForSubject(self, subject: str) -> str:
