@@ -124,9 +124,15 @@ class FieldConnector:
         Get label for a URI.
         """
         labelQueryTemplate = Template(self.labelQueryTemplate)
+        query = labelQueryTemplate.substitute(uri=subject)
 
-        self.sparql.setQuery(labelQueryTemplate.substitute(uri=subject))
-        result = self._sparqlResultToDict(self.sparql.query().convert())
+        self.sparql.setQuery(query)
+        try:
+            queryResult = self.sparql.query().convert()
+        except Exception as e:
+            print(e)
+            raise Exception("Could not execute query: %s" % query)
+        result = self._sparqlResultToDict(queryResult)
         return result[0]['label']
     
     def getMetadataForSubject(self, subject: str) -> dict:
