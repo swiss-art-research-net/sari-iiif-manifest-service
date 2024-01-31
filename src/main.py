@@ -32,7 +32,7 @@ app.add_middleware(
 SPARQL_ENDPOINT = os.environ['SPARQL_ENDPOINT']
 CONFIG_YML = os.environ['CONFIG_YML']
 
-api= Api(CONFIG_YML, SPARQL_ENDPOINT)
+api = Api(CONFIG_YML, SPARQL_ENDPOINT)
 
 @app.get("/", response_class=HTMLResponse)
 def readRoot():

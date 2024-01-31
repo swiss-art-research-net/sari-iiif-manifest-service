@@ -99,7 +99,7 @@ class FieldConnector:
                 try:
                     fieldDefinitions = yaml.safe_load(stream)
                 except yaml.YAMLError as exc:
-                    print(exc)
+                    print(exc, "Could not load field definitions from file '%s'" % inputFile)
         if fieldDefinitions:
             for d in fieldDefinitions['fields']:
                 self.fields[d['id']] = {

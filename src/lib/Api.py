@@ -1,3 +1,4 @@
+import os
 import yaml
 import sys
 
@@ -33,6 +34,10 @@ class Api:
                     if not self.config[key].keys() and subkey not in self.config[key].keys():
                        print(f"Error: Missing required parameter '{key}.{subkey}' in configuration file '{configYmlPath}'", file=sys.stderr)
                        sys.exit(1)
+
+        # Field definitions file is configured using a relative path from the configuration file
+        # We need to resolve the absolute path
+        self.config['fieldDefinitionsFile'] = os.path.join(os.path.dirname(configYmlPath), self.config['fieldDefinitionsFile'])
 
         self.manifest = IiifManifestGenerator(baseUri=self.config['namespaces']['manifests'])
         self.connector = FieldConnector(sparqlEndpoint=sparqlEndpoint)
