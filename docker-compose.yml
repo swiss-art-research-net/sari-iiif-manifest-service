@@ -7,10 +7,7 @@ services:
     container_name: ${PROJECT_NAME}_api
     restart: unless-stopped
     environment:
-      - FIELD_DEFINITIONS_YML=${FIELD_DEFINITIONS_YML}
-      - NAMESPACE_ENTITIES=${NAMESPACE_ENTITIES}
-      - NAMESPACE_MANIFESTS=${NAMESPACE_MANIFESTS}
-      - HOST_LOCATION=${HOST_NAME}
+      - CONFIG_YML=${CONFIG_YML}
       - SPARQL_ENDPOINT=${SPARQL_ENDPOINT}
     networks:
       - default
