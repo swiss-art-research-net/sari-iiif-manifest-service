@@ -7,16 +7,18 @@ RUN apt-get -qq update && \
 RUN locale-gen en_US.UTF-8
 
 # Install Python packages
-RUN pip install fastapi "uvicorn[standard]" sparqlwrapper pydantic
+RUN pip install fastapi "uvicorn[standard]" sparqlwrapper
 
 # Add scripts
 ADD ./src /src
 ADD ./config /config
 
 # Prepare directories and volumes
+RUN mkdir /cache
 WORKDIR /src
 
 VOLUME /config
+VOLUME /cache
 
 EXPOSE 8080
 
