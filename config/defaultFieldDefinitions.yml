@@ -1,0 +1,13 @@
+namespaces:
+  rdfs: http://www.w3.org/2000/01/rdf-schema#
+
+fields:
+
+    - id: has_label
+      label: Label
+      description: The label of the subject
+      datatype: xsd:string
+      queries:
+        - select: 'SELECT ?value WHERE {
+            $subject rdfs:label ?value .
+          }'

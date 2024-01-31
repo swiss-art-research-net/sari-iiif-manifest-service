@@ -1,0 +1,47 @@
+config:
+
+  # Path to the file containing the field definitions
+  fieldDefinitionsFile: ./defaultFieldDefinitions.yml
+
+  queries:
+
+    # The label query template is used to retrieve labels for URIs.
+    # The service expects a SPARQL SELECT query that returns a single
+    # variable ?label. The query is executed with $subject replaced by
+    # the URI of the subject.
+    label: |
+      PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+      SELECT ?label WHERE {
+          {
+              $subject skos:prefLabel ?l1 .
+          } UNION {
+              $subject rdfs:label ?l2.
+          } UNION {
+              $subject crm:P190_has_symbolic_content ?l3 .
+          } UNION {
+              $subject crm:P90_has_value ?l4 .
+          }
+          BIND(COALESCE(?l1, ?l2, ?l3, ?l4) AS ?label)
+      } LIMIT 1
+
+    # The image query template is used to retrieve images for URIs.
+    # The service expects a SPARQL SELECT query that returns three
+    # variables ?image, ?width and ?height. The query is executed with
+    # $subject replaced by the URI of the subject.
+    images: |
+      PREFIX aat: <http://vocab.getty.edu/aat/>
+      PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+      PREFIX la: <https://linked.art/ns/terms/>
+      SELECT ?image ?width ?height WHERE {
+          $subject crm:P138i_has_representation?/la:digitally_shown_by ?imageObject .
+          ?imageObject la:digitally_available_via/la:access_point ?image ;
+              crm:P43_has_dimension ?dimWidth ;
+              crm:P43_has_dimension ?dimHeight .
+          ?dimWidth crm:P2_has_type aat:300055647 ;
+              crm:P90_has_value ?width .
+          ?dimHeight crm:P2_has_type aat:300055644 ;
+              crm:P90_has_value ?height .
+      }
+
