@@ -27,10 +27,10 @@ Methods:
         Get the values for all fields for a given URI.
 
     setLabelQueryTemplate(template: str)
-        Set the template for the label query. Provide a SPARQL SELECT query with a <$uri> placeholder and a ?label variable.
+        Set the template for the label query. Provide a SPARQL SELECT query with a $subject placeholder and a ?label variable.
 
     setImageQueryTemplate(template: str)
-        Set the template for the image query. Provide a SPARQL SELECT query with a <$uri> placeholder and ?image, ?width, and ?height variables.       
+        Set the template for the image query. Provide a SPARQL SELECT query with a $subject placeholder and ?image, ?width, and ?height variables.       
 """
 
 import os
@@ -46,13 +46,13 @@ class FieldConnector:
             PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
             SELECT ?label WHERE {
                 {
-                    <$uri> skos:prefLabel ?l1 .
+                    $subject skos:prefLabel ?l1 .
                 } UNION {
-                    <$uri> rdfs:label ?l2.
+                    $subject rdfs:label ?l2.
                 } UNION {
-                    <$uri> crm:P190_has_symbolic_content ?l3 .
+                    $subject crm:P190_has_symbolic_content ?l3 .
                 } UNION {
-                    <$uri> crm:P90_has_value ?l4 .
+                    $subject crm:P90_has_value ?l4 .
                 }
                 BIND(COALESCE(?l1, ?l2, ?l3, ?l4) AS ?label)
             } LIMIT 1
@@ -63,7 +63,7 @@ class FieldConnector:
             PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
             PREFIX la: <https://linked.art/ns/terms/>
             SELECT ?image ?width ?height WHERE {
-                <$uri> crm:P138i_has_representation?/la:digitally_shown_by ?imageObject .
+                $subject crm:P138i_has_representation?/la:digitally_shown_by ?imageObject .
                 ?imageObject la:digitally_available_via/la:access_point ?image ;
                     crm:P43_has_dimension ?dimWidth ;
                     crm:P43_has_dimension ?dimHeight .
@@ -114,7 +114,7 @@ class FieldConnector:
         Get images for a given URI.
         """
         imageQueryTemplate = Template(self.imageQueryTemplate)
-        query = imageQueryTemplate.substitute(uri=subject)
+        query = imageQueryTemplate.substitute(subject=f"<{subject}>")
         
         self.sparql.setQuery(query)
         try:
@@ -130,7 +130,7 @@ class FieldConnector:
         Get label for a URI.
         """
         labelQueryTemplate = Template(self.labelQueryTemplate)
-        query = labelQueryTemplate.substitute(uri=subject)
+        query = labelQueryTemplate.substitute(subject=f"<{subject}>")
 
         self.sparql.setQuery(query)
         try:
@@ -182,14 +182,14 @@ class FieldConnector:
     def setLabelQueryTemplate(self, template: str):
         """
         Set the template for the label query. 
-        Provide a SPARQL SELECT query with a <$uri> placeholder and a ?label variable.
+        Provide a SPARQL SELECT query with a $subject placeholder and a ?label variable.
         """
         self.labelQueryTemplate = template
 
     def setImageQueryTemplate(self, template: str):
         """
         Set the template for the image query.
-        Provide a SPARQL SELECT query with a <$uri> placeholder and ?image, ?width, and ?height variables.
+        Provide a SPARQL SELECT query with a $subject placeholder and ?image, ?width, and ?height variables.
         """
         self.imageQueryTemplate = template
     
