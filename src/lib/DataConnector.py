@@ -139,6 +139,8 @@ class FieldConnector:
             print(e)
             raise Exception("Could not execute query: %s" % query)
         result = self._sparqlResultToDict(queryResult)
+        if len(result) == 0:
+            raise Exception("No label found for subject '%s'" % subject)
         return result[0]['label']
     
     def getMetadataForSubject(self, subject: str) -> dict:
