@@ -64,19 +64,19 @@ class IiifManifestGenerator:
         items = []
         for i, image in enumerate(images):
             canvas = {
-                "id": "%s/image/%d/canvas" % (self.baseUri, i),
+                "id": f"{self.baseUri}image/{i}/canvas",
                 "type": "Canvas",
                 "width": int(image['width']),
                 "height": int(image['height']),
                 "items": [{
-                        "id": "%s/image/%d/canvas/page" % (self.baseUri, i),
+                        "id": f"{self.baseUri}image/{i}/canvas/page",
                         "type": "AnnotationPage",
                         "items": [{
-                            "id": "%s/image/%d/canvas/page/annotation" % (self.baseUri, i),
+                            "id": f"{self.baseUri}image/{i}/canvas/page/annotation",
                             "type": "Annotation",
                             "motivation": "painting",
                             "body": {
-                                "id": "%s/full/max/0/default.jpg" % image['image'],
+                                "id": f"{image['image']}/full/max/0/default.jpg",
                                 "type": "Image",
                                 "format": "image/jpeg",
                                 "width": int(image['width']),
@@ -87,7 +87,7 @@ class IiifManifestGenerator:
                                     "type": "ImageService3"
                                 }]
                             },
-                            "target": "%s/image/%d/canvas" % (self.baseUri, i)
+                            "target": f"{self.baseUri}image/{i}/canvas"
                         }]
                     }]
             }
