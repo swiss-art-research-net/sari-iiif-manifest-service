@@ -20,3 +20,9 @@ The config file that the service uses can be specified using the `CONFIG_YML` en
     `cp .env.example .env`
 1. Edit the `.env` file and set the `SPARQL_ENDPOINT` environment variable to the URL of your SPARQL endpoint and the `CONFIG_YML` environment variable to the path of your config file.
 1. Edit the `config.yml` file based on the comments in the file.
+
+A default field definitions file is provided. To use your own metadata fields, create a copy of the file and edit it accordingly or use one from an existing project. The path to the field definitions file can be specified in the `config.yml` file.
+
+### Running the service
+
+Run `docker-compose up -d` to start the service. When using the service in production, comment out the respective lines in the `.env` file.
