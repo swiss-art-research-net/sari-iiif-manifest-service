@@ -11,8 +11,8 @@ namespaces:
 
     # The namespace for manifests. This is used to construct the URI for the manifest based
     # on a type and ID. For example, for manifests of the form 'http://iiif.example.com/manifest/object/123',
-    # the namespace would be 'http://iiif.example.com/'.
-    manifests: http://iiif.example.com/
+    # the namespace would be 'http://iiif.example.com/manifest/'.
+    manifests: http://iiif.example.com/manifest/
 
 # Queries for retrieving labels and images for URIs
 queries:
