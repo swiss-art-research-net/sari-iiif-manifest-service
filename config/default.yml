@@ -1,6 +1,17 @@
 # Path to the file containing the field definitions
 fieldDefinitionsFile: ./defaultFieldDefinitions.yml
 
+# Cache
+cache:
+    # Set the cache expiration time as a duration string composed of a number and a unit.
+    # Valid time units are: 
+    #   s: seconds
+    #   m: minutes
+    #   h: hours
+    #   d: days
+    #   w: weeks
+    expiration: 1w
+
 # Namespaces for retrieving and generating URIs
 namespaces:
     # The namespace for entities. This is used to construct the URI for retrieving the subject 
