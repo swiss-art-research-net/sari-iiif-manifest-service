@@ -9,7 +9,7 @@ A service to generate and serve IIIF Manifests based on data stored in a RDF tri
 * Generates IIIF Manifests based on data stored in a RDF triplestore
 * Supports ResearchSpace/Metaphacts [Field Definitions](https://github.com/swiss-art-research-net/sari-field-definitions-generator) to retrieve metadata
 * Implements [Linked.Art](https://linked.art/) model for IIIF images per default
-
+* File based cache for generated manifests
 
 ## How to use
 
