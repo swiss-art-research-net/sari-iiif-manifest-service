@@ -24,6 +24,9 @@ class Api:
 
         required = {
             "fieldDefinitionsFile": "string",
+            "cache": {
+                "expiration": "string"
+            },
             "namespaces": {
                 "entities": "string",
                 "manifests": "string"
@@ -52,6 +55,8 @@ class Api:
         self.manifest = IiifManifestGenerator(baseUri=self.config['namespaces']['manifests'])
         self.connector = FieldConnector(sparqlEndpoint=sparqlEndpoint)
         self.connector.loadFieldDefinitionsFromFile(self.config['fieldDefinitionsFile'])
+
+        cache.setExpiration(self.config['cache']['expiration'])
         
 
     @cache.cache

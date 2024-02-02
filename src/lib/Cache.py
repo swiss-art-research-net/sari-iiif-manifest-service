@@ -7,7 +7,7 @@ class Cache:
 
     def __init__(self, path: str, *, expiration: str = '1w'):
         self.cacheDirectory = path
-        self.cacheExpiration = Cache._parseTimeString(expiration)
+        self.cacheExpiration = self._parseTimeString(expiration)
 
     def cache(self, func):
         def wrapper(*args, **kwargs):
@@ -19,6 +19,9 @@ class Cache:
                 self._storeInCache(key, value)
                 return value
         return wrapper
+    
+    def setExpiration(self, expiration: str):
+        self.cacheExpiration = self._parseTimeString(expiration)
 
     def _deleteIfExpired(self, key):
         filepath = self._generateFilePath(key)
@@ -26,7 +29,7 @@ class Cache:
             lastModified = getmtime(filepath)
             if lastModified + self.cacheExpiration < time.time():
                 removeFile(filepath)
-
+    
     def _generateFilePath(self, key):
         return join(self.cacheDirectory, self._generateFilename(key))
 
@@ -49,7 +52,7 @@ class Cache:
         with open(filepath, 'wb') as f:
             pickle.dump(value, f)
     
-    def _parseTimeString(timeStr: str):
+    def _parseTimeString(self, timeStr: str):
         unitMap = {
             's': 1,
             'm': 60,
