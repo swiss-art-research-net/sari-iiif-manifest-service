@@ -16,7 +16,6 @@ from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from lib.Api import Api
-from lib.Cache import Cache
 
 app = FastAPI()
 
@@ -34,7 +33,6 @@ SPARQL_ENDPOINT = os.environ['SPARQL_ENDPOINT']
 CONFIG_YML = os.environ['CONFIG_YML']
 
 api = Api(CONFIG_YML, SPARQL_ENDPOINT)
-cache = Cache('/cache')
 
 @app.get("/", response_class=HTMLResponse)
 def readRoot():
@@ -52,8 +50,4 @@ def readRoot():
 
 @app.get("/manifest/{item_type}/{item_id}")
 def getManifest(item_type: str, item_id: str):
-    return getManifestFromApi(item_type, item_id)
-
-@cache.cache
-def getManifestFromApi(item_type: str, item_id: str):
     return api.getManifest(type=item_type, id=item_id)

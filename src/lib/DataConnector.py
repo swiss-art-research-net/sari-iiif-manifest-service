@@ -131,7 +131,6 @@ class FieldConnector:
         """
         labelQueryTemplate = Template(self.labelQueryTemplate)
         query = labelQueryTemplate.substitute(subject=f"<{subject}>")
-
         self.sparql.setQuery(query)
         try:
             queryResult = self.sparql.query().convert()

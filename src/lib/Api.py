@@ -10,9 +10,11 @@ import os
 import yaml
 import sys
 
-from lib.IiifManifestGenerator import IiifManifestGenerator
+from lib.Cache import Cache
 from lib.DataConnector import FieldConnector
+from lib.IiifManifestGenerator import IiifManifestGenerator
 
+cache = Cache('/cache')
 class Api:
 
     def __init__(self, configYmlPath: str, sparqlEndpoint: str):
@@ -50,7 +52,9 @@ class Api:
         self.manifest = IiifManifestGenerator(baseUri=self.config['namespaces']['manifests'])
         self.connector = FieldConnector(sparqlEndpoint=sparqlEndpoint)
         self.connector.loadFieldDefinitionsFromFile(self.config['fieldDefinitionsFile'])
+        
 
+    @cache.cache
     def getManifest(self, *, type: str, id: str) -> dict:
         subject = f"{self.config['namespaces']['entities']}{type}/{id}"
         manifestId = f"{type}/{id}"
