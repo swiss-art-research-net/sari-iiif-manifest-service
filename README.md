@@ -33,3 +33,36 @@ A default field definitions file is provided. To use your own metadata fields, c
 ### Running the service
 
 Run `docker-compose up -d` to start the service. When using the service in production, comment out the respective lines in the `.env` file.
+
+### Structure of the config file
+
+The config file is a YAML file with the following structure:
+
+```yaml
+fieldDefinitionsFile: "path/to/field-definitions.yml"
+cache:
+    expiration: "1w"
+namespaces:
+    entities: "https://example.org/"
+    manifests: "http://iiif.example.com/manifest/"
+queries:
+    label: |
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT ?label WHERE {
+            $subject skos:prefLabel ?label .
+        } LIMIT 1
+    images: |
+        PREFIX aat: <http://vocab.getty.edu/aat/>
+        PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+        PREFIX la: <https://linked.art/ns/terms/>
+        SELECT ?image ?width ?height WHERE {
+            $subject la:digitally_shown_by ?imageObject .
+            ?imageObject la:digitally_available_via/la:access_point ?image ;
+                crm:P43_has_dimension ?dimWidth ;
+                crm:P43_has_dimension ?dimHeight .
+            ?dimWidth crm:P2_has_type aat:300055647 ;
+                crm:P90_has_value ?width .
+            ?dimHeight crm:P2_has_type aat:300055644 ;
+                crm:P90_has_value ?height .
+        }
+```
