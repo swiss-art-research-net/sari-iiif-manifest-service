@@ -3,6 +3,7 @@ from os.path import exists, getmtime, join
 
 import pickle
 import time
+import hashlib
 class Cache:
 
     def __init__(self, path: str, *, expiration: str = '1w'):
@@ -34,7 +35,8 @@ class Cache:
         return join(self.cacheDirectory, self._generateFilename(key))
 
     def _generateFilename(self, key):
-        return str(hash(key)) + '.pickle'
+        keyHash = hashlib.sha256(key.encode()).hexdigest()
+        return str(keyHash) + '.pickle'
 
     def _isInCache(self, key):
         self._deleteIfExpired(key)
