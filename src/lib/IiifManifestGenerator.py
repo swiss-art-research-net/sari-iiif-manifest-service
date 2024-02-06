@@ -20,6 +20,9 @@ Usage:
     ]
     manifest = generator.generate(id="123", label="Example Manifest", images=images, metadata=metadata)
 """
+
+import json
+from iiif_prezi3 import Canvas, Manifest, Annotation, AnnotationPage, ResourceItem
 class IiifManifestGenerator:
 
     def __init__(self, *, baseUri: str = "http://example.org/manifests/"):
@@ -39,20 +42,16 @@ class IiifManifestGenerator:
 
         :return: A dict representing the manifest.
         """
-        manifest = {
-            "@context": "http://iiif.io/api/presentation/3/context.json",
-            "id": f"{self.baseUri}{id}",
-            "items": [],
-            "type": "Manifest",
-            "label": {
-                "none": [label]
-            },
-            "metadata": metadata,
-        }
-        manifest['items'] = self.generateImageItems(images)
-        return manifest
+        identifier = f"{self.baseUri}{id}";
+        manifest = Manifest(id=identifier, label=label)
+        manifest.items = self.generateImageItems(images, manifestId=identifier)
+        manifest.metadata = metadata
+
+        # Return manifest as parsed JSON 
+        return json.loads(manifest.json(indent=2))
     
-    def generateImageItems(self, images: list) -> list:
+    
+    def generateImageItems(self, images: list, manifestId: str) -> list:
         """
         Generate a list of image items following the IIIF Presentation API standard.
 
@@ -62,33 +61,26 @@ class IiifManifestGenerator:
         """
         items = []
         for i, image in enumerate(images):
-            canvas = {
-                "id": f"{self.baseUri}image/{i}/canvas",
-                "type": "Canvas",
-                "width": int(image['width']),
-                "height": int(image['height']),
-                "items": [{
-                        "id": f"{self.baseUri}image/{i}/canvas/page",
-                        "type": "AnnotationPage",
-                        "items": [{
-                            "id": f"{self.baseUri}image/{i}/canvas/page/annotation",
-                            "type": "Annotation",
-                            "motivation": "painting",
-                            "body": {
-                                "id": f"{image['image']}/full/max/0/default.jpg",
-                                "type": "Image",
-                                "format": "image/jpeg",
-                                "width": int(image['width']),
-                                "height": int(image['height']),
-                                "service": [{
-                                    "id": image['image'],
-                                    "profile": "level1",
-                                    "type": "ImageService3"
-                                }]
-                            },
-                            "target": f"{self.baseUri}image/{i}/canvas"
-                        }]
-                    }]
+            canvasId = f"{manifestId}/image/{i}/canvas"
+            canvas = Canvas(
+                id=canvasId,
+                width=int(image['width']),
+                height=int(image['height'])
+            )
+            service = {
+                "id": image['image'],
+                "type": "ImageService3",
+                "profile": "level2"
             }
+            annotation = Annotation(
+                type="Annotation",
+                id=canvasId + "/annotation",
+                target=canvasId
+            )
+            annotation.motivation = "painting"
+            annotation.body = ResourceItem(service=[service], id=image['image']+"/full/max/0/default.jpg", type="Image", format="image/jpeg", width=int(image['width']), height=int(image['height']))
+            annotationPage = AnnotationPage(id=canvasId+"/page",type='AnnotationPage')
+            annotationPage.items = [annotation]
+            canvas.items = [annotationPage]
             items.append(canvas)
         return items
