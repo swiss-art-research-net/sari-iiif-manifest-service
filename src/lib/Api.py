@@ -52,8 +52,13 @@ class Api:
         # We need to resolve the absolute path
         self.config['fieldDefinitionsFile'] = os.path.join(os.path.dirname(configYmlPath), self.config['fieldDefinitionsFile'])
 
+        if 'rights' in self.config and 'licenseQuery' in self.config['rights']:
+            licenseQueryTemplate = self.config['rights']['licenseQuery']
+        else:
+            licenseQueryTemplate = None
+
         self.manifest = IiifManifestGenerator(baseUri=self.config['namespaces']['manifests'])
-        self.connector = FieldConnector(sparqlEndpoint=sparqlEndpoint)
+        self.connector = FieldConnector(sparqlEndpoint=sparqlEndpoint, licenseQueryTemplate=licenseQueryTemplate, labelQueryTemplate=self.config['queries']['label'], imageQueryTemplate=self.config['queries']['images'])
         self.connector.loadFieldDefinitionsFromFile(self.config['fieldDefinitionsFile'])
 
         cache.setExpiration(self.config['cache']['expiration'])
