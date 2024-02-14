@@ -74,12 +74,13 @@ class FieldConnector:
             }
         """
 
-    def __init__(self, *, sparqlEndpoint: str, labelQueryTemplate=LABEL_QUERY, imageQueryTemplate=IMAGE_QUERY):
+    def __init__(self, *, sparqlEndpoint: str, labelQueryTemplate=LABEL_QUERY, imageQueryTemplate=IMAGE_QUERY, licenseQueryTemplate=None):
         self.endpoint = sparqlEndpoint
         self.fields = {}
         self.namespaces = {}
         self.labelQueryTemplate = labelQueryTemplate
         self.imageQueryTemplate = imageQueryTemplate
+        self.licenseQueryTemplate = licenseQueryTemplate
 
         # Test connection
         self.sparql = SPARQLWrapper(self.endpoint)
@@ -141,6 +142,15 @@ class FieldConnector:
         if len(result) == 0:
             raise Exception("No label found for subject '%s'" % subject)
         return result[0]['label']
+    
+    def getLicenseForSubject(self, subject: str) -> str:
+        """
+        Get license for a URI.
+        """
+        if self.licenseQueryTemplate is None:
+            return None
+        
+        return "http://creativecommons.org/licenses/by/4.0"
     
     def getMetadataForSubject(self, subject: str) -> dict:
         """

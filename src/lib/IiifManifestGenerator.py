@@ -31,7 +31,7 @@ class IiifManifestGenerator:
         """
         self.baseUri = baseUri
 
-    def generate(self, *, id: str, label: str, images: list, metadata: list, license: str | None = None) -> dict:
+    def generate(self, *, id: str, label: str, images: list, metadata: list, license: str = None) -> dict:
         """
         Generate a IIIF Presentation API manifest.
         
