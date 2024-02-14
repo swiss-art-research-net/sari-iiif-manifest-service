@@ -149,6 +149,18 @@ class FieldConnector:
         """
         if self.licenseQueryTemplate is None:
             return None
+        licenseQueryTemplate = Template(self.licenseQueryTemplate)
+        query = licenseQueryTemplate.substitute(subject=f"<{subject}>")
+        self.sparql.setQuery(query)
+        try:
+            queryResult = self.sparql.query().convert()
+        except Exception as e:
+            print(e)
+            raise Exception("Could not execute query: %s" % query)
+        result = self._sparqlResultToDict(queryResult)
+        if len(result) == 0:
+            return None
+        return result[0]['license']
         
         return "http://creativecommons.org/licenses/by/4.0"
     
