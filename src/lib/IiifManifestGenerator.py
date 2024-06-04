@@ -31,7 +31,7 @@ class IiifManifestGenerator:
         """
         self.baseUri = baseUri
 
-    def generate(self, *, id: str, label: str, images: list, metadata: list, license: str = None) -> dict:
+    def generate(self, *, id: str, label: str, images: list, metadata: list, thumbnails: list = None, license: str = None) -> dict:
         """
         Generate a IIIF Presentation API manifest.
         
@@ -48,6 +48,8 @@ class IiifManifestGenerator:
         manifest.metadata = metadata
         if license:
             manifest.rights = license
+        if thumbnails:
+            manifest.thumbnail = self.generateThumbnails(thumbnails)
 
         # Return manifest as parsed JSON 
         return json.loads(manifest.json(indent=2))
@@ -86,3 +88,24 @@ class IiifManifestGenerator:
             canvas.items = [annotationPage]
             items.append(canvas)
         return items
+    
+    def generateThumbnails(self, thumbnails: list) -> list:
+        """
+        Generate a list of thumbnails following the IIIF Presentation API standard.
+
+        :param thumbnails: A list of thumbnail images.
+
+        :return: A list of thumbnail images.
+        """
+        iiifThumbnails = []
+        for thumbnail in thumbnails:
+            iiifThumbnail = ResourceItem(id=f"{thumbnail['thumbnail']}/full/max/0/default.jpg",
+                         type="Image",
+                         format="image/jpeg",
+                         height=f"{thumbnail['height']}",
+                         width=f"{thumbnail['width']}")
+            iiifThumbnail.make_service(id=thumbnail['thumbnail'],
+                       type="ImageService3",
+                       profile="level1")
+            iiifThumbnails.append(iiifThumbnail)
+        return iiifThumbnails

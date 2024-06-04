@@ -79,7 +79,14 @@ class Api:
         subject = f"{self.config['namespaces']['entities']}{type}/{id}"
         manifestId = f"{type}/{id}"
         data = self.getDataForSubject(subject)
-        return self.manifest.generate(id=manifestId, label=data['label'], images=data['images'], metadata=data['metadata'], license=data['license'])
+        return self.manifest.generate(
+            id=manifestId,
+            label=data['label'],
+            images=data['images'],
+            metadata=data['metadata'],
+            license=data['license'],
+            thumbnails=data['thumbnails']
+        )
 
     def getDataForSubject(self, subject: str) -> dict:
         label = self.connector.getLabelForSubject(subject)
