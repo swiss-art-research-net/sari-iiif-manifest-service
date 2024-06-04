@@ -57,8 +57,18 @@ class Api:
         else:
             licenseQueryTemplate = None
 
+        if 'thumbnails' in self.config['queries']:
+            thumbnailQueryTemplate = self.config['queries']['thumbnails']
+        else:
+            thumbnailQueryTemplate = None
+
         self.manifest = IiifManifestGenerator(baseUri=self.config['namespaces']['manifests'])
-        self.connector = FieldConnector(sparqlEndpoint=sparqlEndpoint, licenseQueryTemplate=licenseQueryTemplate, labelQueryTemplate=self.config['queries']['label'], imageQueryTemplate=self.config['queries']['images'])
+        self.connector = FieldConnector(
+            sparqlEndpoint=sparqlEndpoint,
+            licenseQueryTemplate=licenseQueryTemplate,
+            labelQueryTemplate=self.config['queries']['label'],
+            imageQueryTemplate=self.config['queries']['images'],
+            thumbnailQueryTemplate=thumbnailQueryTemplate)
         self.connector.loadFieldDefinitionsFromFile(self.config['fieldDefinitionsFile'])
 
         cache.setExpiration(self.config['cache']['expiration'])
@@ -69,16 +79,25 @@ class Api:
         subject = f"{self.config['namespaces']['entities']}{type}/{id}"
         manifestId = f"{type}/{id}"
         data = self.getDataForSubject(subject)
-        return self.manifest.generate(id=manifestId, label=data['label'], images=data['images'], metadata=data['metadata'], license=data['license'])
+        return self.manifest.generate(
+            id=manifestId,
+            label=data['label'],
+            images=data['images'],
+            metadata=data['metadata'],
+            license=data['license'],
+            thumbnails=data['thumbnails']
+        )
 
     def getDataForSubject(self, subject: str) -> dict:
         label = self.connector.getLabelForSubject(subject)
         metadata = self.connector.getMetadataForSubject(subject)
         images = self.connector.getImagesForSubject(subject)
+        thumbnails = self.connector.getThumbnailsForSubject(subject)
         rights = self.connector.getLicenseForSubject(subject)
         return {
             "label": label,
             "metadata": metadata,
             "images": images,
-            "license": rights
+            "license": rights,
+            "thumbnails": thumbnails
         }
