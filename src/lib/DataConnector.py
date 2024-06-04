@@ -74,13 +74,14 @@ class FieldConnector:
             }
         """
 
-    def __init__(self, *, sparqlEndpoint: str, labelQueryTemplate=LABEL_QUERY, imageQueryTemplate=IMAGE_QUERY, licenseQueryTemplate=None):
+    def __init__(self, *, sparqlEndpoint: str, labelQueryTemplate=LABEL_QUERY, imageQueryTemplate=IMAGE_QUERY, thumbnailQueryTemplate=None, licenseQueryTemplate=None):
         self.endpoint = sparqlEndpoint
         self.fields = {}
         self.namespaces = {}
         self.labelQueryTemplate = labelQueryTemplate
         self.imageQueryTemplate = imageQueryTemplate
         self.licenseQueryTemplate = licenseQueryTemplate
+        self.thumbnailQueryTemplate = thumbnailQueryTemplate
 
         # Test connection
         self.sparql = SPARQLWrapper(self.endpoint)
@@ -201,6 +202,24 @@ class FieldConnector:
                     }
                 })
         return metadata
+    
+    def getThumbnailsForSubject(self, subject: str) -> list:
+        """
+        Get thumbnails for a given URI.
+        """
+        if self.thumbnailQueryTemplate is None:
+            return []
+        thumbnailQueryTemplate = Template(self.thumbnailQueryTemplate)
+        query = thumbnailQueryTemplate.substitute(subject=f"<{subject}>")
+        
+        self.sparql.setQuery(query)
+        try:
+            queryResult = self.sparql.query().convert()
+        except Exception as e:
+            print(e)
+            raise Exception("Could not execute query: %s" % query)
+        thumbnails = self._sparqlResultToDict(queryResult)
+        return thumbnails
     
     def setLabelQueryTemplate(self, template: str):
         """

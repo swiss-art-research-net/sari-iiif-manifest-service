@@ -67,6 +67,31 @@ queries:
                 crm:P90_has_value ?height .
         }
 
+    # The thumbnail query template is used to retrieve thumbnails for URIs.
+    # The service expects a SPARQL SELECT query that returns three variables
+    # ?thumbnail, ?width and ?height. The query is executed with $subject
+    thumbnails: |
+        PREFIX aat: <http://vocab.getty.edu/aat/>
+        PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+        PREFIX la: <https://linked.art/ns/terms/>
+        SELECT ?thumbnail ?width ?height WHERE {
+            $subject crm:P138i_has_representation ?thumbnail .
+            ?thumbnail crm:P2_has_type aat:300404450 .
+            
+            ?assignment crm:P140_assigned_attribute_to ?thumbnail ;
+            crm:P141_assigned aat:300404450 ;
+            crm:P16_used_specific_object ?subject .
+            
+            ?thumbnail la:digitally_shown_by ?imageObject .
+            ?imageObject la:digitally_available_via/la:access_point ?image ;
+                crm:P43_has_dimension ?dimWidth ;
+                crm:P43_has_dimension ?dimHeight .
+            ?dimWidth crm:P2_has_type aat:300055647 ;
+                crm:P90_has_value ?width .
+            ?dimHeight crm:P2_has_type aat:300055644 ;
+                crm:P90_has_value ?height .
+        }
+
 rights:
     # Retrieve the license for a given URI. The service expects a SPARQL SELECT query that returns a single
     # variable ?license. The ?license is expected to be a Creative Commons license URI, a RightsStatements.org URL
