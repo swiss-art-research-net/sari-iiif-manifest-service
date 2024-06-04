@@ -75,15 +75,15 @@ queries:
         PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
         PREFIX la: <https://linked.art/ns/terms/>
         SELECT ?thumbnail ?width ?height WHERE {
-            $subject crm:P138i_has_representation ?thumbnail .
-            ?thumbnail crm:P2_has_type aat:300404450 .
+            $subject crm:P138i_has_representation ?thumbnailObject .
+            ?thumbnailObject crm:P2_has_type aat:300404450 .
             
-            ?assignment crm:P140_assigned_attribute_to ?thumbnail ;
+            ?assignment crm:P140_assigned_attribute_to ?thumbnailObject ;
             crm:P141_assigned aat:300404450 ;
             crm:P16_used_specific_object ?subject .
             
-            ?thumbnail la:digitally_shown_by ?imageObject .
-            ?imageObject la:digitally_available_via/la:access_point ?image ;
+            ?thumbnailObject la:digitally_shown_by ?imageObject .
+            ?imageObject la:digitally_available_via/la:access_point ?thumbnail ;
                 crm:P43_has_dimension ?dimWidth ;
                 crm:P43_has_dimension ?dimHeight .
             ?dimWidth crm:P2_has_type aat:300055647 ;
