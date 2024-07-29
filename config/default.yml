@@ -102,3 +102,8 @@ rights:
             $subject crm:P104_is_subject_to ?right .
             ?right crm:P2_has_type ?license .
         }
+
+options:
+    # If set to true, the service will retrieve metadata for images
+    # default: False
+    imageMetadata: False
