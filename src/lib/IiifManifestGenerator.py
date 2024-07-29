@@ -86,6 +86,8 @@ class IiifManifestGenerator:
             annotationPage = AnnotationPage(id=canvasId+"/page",type='AnnotationPage')
             annotationPage.items = [annotation]
             canvas.items = [annotationPage]
+            if 'metadata' in image:
+                canvas.metadata = image['metadata']
             items.append(canvas)
         return items
     
