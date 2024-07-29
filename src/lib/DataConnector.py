@@ -162,8 +162,6 @@ class FieldConnector:
         if len(result) == 0:
             return None
         return result[0]['license']
-        
-        return "http://creativecommons.org/licenses/by/4.0"
     
     def getMetadataForSubject(self, subject: str) -> dict:
         """
