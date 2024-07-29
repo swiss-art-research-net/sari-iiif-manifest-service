@@ -94,6 +94,8 @@ class Api:
         images = self.connector.getImagesForSubject(subject)
         thumbnails = self.connector.getThumbnailsForSubject(subject)
         rights = self.connector.getLicenseForSubject(subject)
+        for image in images:
+            image['metadata'] = self.connector.getMetadataForSubject(image['image'])
         return {
             "label": label,
             "metadata": metadata,
