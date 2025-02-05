@@ -74,14 +74,26 @@ class FieldConnector:
             }
         """
 
-    def __init__(self, *, sparqlEndpoint: str, labelQueryTemplate=LABEL_QUERY, imageQueryTemplate=IMAGE_QUERY, thumbnailQueryTemplate=None, manifestLicenseQueryTemplate=None):
+    def __init__(self, *, 
+                 sparqlEndpoint: str, 
+                 labelQueryTemplate=LABEL_QUERY, 
+                 imageQueryTemplate=IMAGE_QUERY, 
+                 thumbnailQueryTemplate=None, 
+                 manifestLicenseQueryTemplate=None,
+                 manifestRequiredStatementQueryTemplate=None,
+                 imageLicenseQueryTemplate=None,
+                 imageRequiredStatementQueryTemplate=None
+        ):
         self.endpoint = sparqlEndpoint
         self.fields = {}
         self.namespaces = {}
         self.labelQueryTemplate = labelQueryTemplate
         self.imageQueryTemplate = imageQueryTemplate
-        self.manifestLicenseQueryTemplate = manifestLicenseQueryTemplate
         self.thumbnailQueryTemplate = thumbnailQueryTemplate
+        self.manifestLicenseQueryTemplate = manifestLicenseQueryTemplate
+        self.manifestRequiredStatementQueryTemplate = manifestRequiredStatementQueryTemplate
+        self.imageLicenseQueryTemplate = imageLicenseQueryTemplate
+        self.imageRequiredStatementQueryTemplate = imageRequiredStatementQueryTemplate
 
         # Test connection
         self.sparql = SPARQLWrapper(self.endpoint)
@@ -162,6 +174,25 @@ class FieldConnector:
         if len(result) == 0:
             return None
         return result[0]['license']
+    
+    def getRequiredStatementForManifest(self, subject: str) -> str:
+        """
+        Get required statement for a Manifest URI.
+        """
+        if self.manifestRequiredStatementQueryTemplate is None:
+            return None
+        template = Template(self.manifestRequiredStatementQueryTemplate)
+        query = template.substitute(subject=f"<{subject}>")
+        self.sparql.setQuery(query)
+        try:
+            queryResult = self.sparql.query().convert()
+        except Exception as e:
+            print(e)
+            raise Exception("Could not execute query: %s" % query)
+        result = self._sparqlResultToDict(queryResult)
+        if len(result) == 0:
+            return None
+        return result[0]
     
     def getMetadataForSubject(self, subject: str) -> dict:
         """

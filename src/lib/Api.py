@@ -52,10 +52,18 @@ class Api:
         # We need to resolve the absolute path
         self.config['fieldDefinitionsFile'] = os.path.join(os.path.dirname(configYmlPath), self.config['fieldDefinitionsFile'])
 
-        if 'rights' in self.config and 'manifestLicenseQuery' in self.config['rights']:
-            manifestLicenseQueryTemplate = self.config['rights']['manifestLicenseQuery']
-        else:
-            manifestLicenseQueryTemplate = None
+        manifestLicenseQueryTemplate = manifestRequiredStatementQueryTemplate = imageLicenseQueryTemplate = imageRequiredStatementTemplate = None
+        if 'rights' in self.config:
+            if 'manifest' in self.config['rights']:
+                if 'licenseQuery' in self.config['rights']['manifest']:
+                    manifestLicenseQueryTemplate = self.config['rights']['manifest']['licenseQuery']
+                if 'requiredStatement' in self.config['rights']['manifest']:
+                    manifestRequiredStatementQueryTemplate = self.config['rights']['manifest']['requiredStatement']
+            if 'image' in self.config['rights']:
+                if 'licenseQuery' in self.config['rights']['image']:
+                    imageLicenseQueryTemplate = self.config['rights']['image']['licenseQuery']
+                if 'requiredStatement' in self.config['rights']['image']:
+                    imageRequiredStatementQueryTemplate = self.config['rights']['image']['requiredStatement']
 
         if 'thumbnails' in self.config['queries']:
             thumbnailQueryTemplate = self.config['queries']['thumbnails']
@@ -66,6 +74,9 @@ class Api:
         self.connector = FieldConnector(
             sparqlEndpoint=sparqlEndpoint,
             manifestLicenseQueryTemplate=manifestLicenseQueryTemplate,
+            manifestRequiredStatementQueryTemplate=manifestRequiredStatementQueryTemplate,
+            imageLicenseQueryTemplate=imageLicenseQueryTemplate,
+            imageRequiredStatementQueryTemplate=imageRequiredStatementQueryTemplate,
             labelQueryTemplate=self.config['queries']['label'],
             imageQueryTemplate=self.config['queries']['images'],
             thumbnailQueryTemplate=thumbnailQueryTemplate)
@@ -94,6 +105,7 @@ class Api:
         images = self.connector.getImagesForSubject(subject)
         thumbnails = self.connector.getThumbnailsForSubject(subject)
         rights = self.connector.getLicenseForManifest(subject)
+        requiredStatement = self.connector.getRequiredStatementForManifest(subject)
         if 'options' in self.config and 'imageMetadata' in self.config['options'] and self.config['options']['imageMetadata']:
             for image in images:
                 image['metadata'] = self.connector.getMetadataForSubject(image['image'])
