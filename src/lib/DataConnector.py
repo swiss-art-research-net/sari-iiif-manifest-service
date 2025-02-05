@@ -74,13 +74,13 @@ class FieldConnector:
             }
         """
 
-    def __init__(self, *, sparqlEndpoint: str, labelQueryTemplate=LABEL_QUERY, imageQueryTemplate=IMAGE_QUERY, thumbnailQueryTemplate=None, licenseQueryTemplate=None):
+    def __init__(self, *, sparqlEndpoint: str, labelQueryTemplate=LABEL_QUERY, imageQueryTemplate=IMAGE_QUERY, thumbnailQueryTemplate=None, manifestLicenseQueryTemplate=None):
         self.endpoint = sparqlEndpoint
         self.fields = {}
         self.namespaces = {}
         self.labelQueryTemplate = labelQueryTemplate
         self.imageQueryTemplate = imageQueryTemplate
-        self.licenseQueryTemplate = licenseQueryTemplate
+        self.manifestLicenseQueryTemplate = manifestLicenseQueryTemplate
         self.thumbnailQueryTemplate = thumbnailQueryTemplate
 
         # Test connection
@@ -144,14 +144,14 @@ class FieldConnector:
             raise Exception("No label found for subject '%s'" % subject)
         return result[0]['label']
     
-    def getLicenseForSubject(self, subject: str) -> str:
+    def getLicenseForManifest(self, subject: str) -> str:
         """
-        Get license for a URI.
+        Get license for a Manifest URI.
         """
-        if self.licenseQueryTemplate is None:
+        if self.manifestLicenseQueryTemplate is None:
             return None
-        licenseQueryTemplate = Template(self.licenseQueryTemplate)
-        query = licenseQueryTemplate.substitute(subject=f"<{subject}>")
+        template = Template(self.manifestLicenseQueryTemplate)
+        query = template.substitute(subject=f"<{subject}>")
         self.sparql.setQuery(query)
         try:
             queryResult = self.sparql.query().convert()

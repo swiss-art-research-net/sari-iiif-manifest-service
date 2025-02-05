@@ -52,10 +52,10 @@ class Api:
         # We need to resolve the absolute path
         self.config['fieldDefinitionsFile'] = os.path.join(os.path.dirname(configYmlPath), self.config['fieldDefinitionsFile'])
 
-        if 'rights' in self.config and 'licenseQuery' in self.config['rights']:
-            licenseQueryTemplate = self.config['rights']['licenseQuery']
+        if 'rights' in self.config and 'manifestLicenseQuery' in self.config['rights']:
+            manifestLicenseQueryTemplate = self.config['rights']['manifestLicenseQuery']
         else:
-            licenseQueryTemplate = None
+            manifestLicenseQueryTemplate = None
 
         if 'thumbnails' in self.config['queries']:
             thumbnailQueryTemplate = self.config['queries']['thumbnails']
@@ -65,7 +65,7 @@ class Api:
         self.manifest = IiifManifestGenerator(baseUri=self.config['namespaces']['manifests'])
         self.connector = FieldConnector(
             sparqlEndpoint=sparqlEndpoint,
-            licenseQueryTemplate=licenseQueryTemplate,
+            manifestLicenseQueryTemplate=manifestLicenseQueryTemplate,
             labelQueryTemplate=self.config['queries']['label'],
             imageQueryTemplate=self.config['queries']['images'],
             thumbnailQueryTemplate=thumbnailQueryTemplate)
@@ -93,7 +93,7 @@ class Api:
         metadata = self.connector.getMetadataForSubject(subject)
         images = self.connector.getImagesForSubject(subject)
         thumbnails = self.connector.getThumbnailsForSubject(subject)
-        rights = self.connector.getLicenseForSubject(subject)
+        rights = self.connector.getLicenseForManifest(subject)
         if 'options' in self.config and 'imageMetadata' in self.config['options'] and self.config['options']['imageMetadata']:
             for image in images:
                 image['metadata'] = self.connector.getMetadataForSubject(image['image'])
