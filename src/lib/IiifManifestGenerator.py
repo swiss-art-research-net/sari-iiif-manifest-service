@@ -90,9 +90,9 @@ class IiifManifestGenerator:
             canvas.items = [annotationPage]
             if 'metadata' in image:
                 canvas.metadata = image['metadata']
-            if 'rights' in image:
+            if 'rights' in image and image['rights']:
                 canvas.rights = image['rights']
-            if 'requiredStatement' in image:
+            if 'requiredStatement' in image and image['requiredStatement']:
                 canvas.requiredStatement = image['requiredStatement']
             items.append(canvas)
         return items
