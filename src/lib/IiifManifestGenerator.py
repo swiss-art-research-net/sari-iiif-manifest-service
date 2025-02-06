@@ -31,7 +31,7 @@ class IiifManifestGenerator:
         """
         self.baseUri = baseUri
 
-    def generate(self, *, id: str, label: str, images: list, metadata: list, thumbnails: list = None, license: str = None) -> dict:
+    def generate(self, *, id: str, label: str, images: list, metadata: list, thumbnails: list = None, rights: str = None, requiredStatement: dict = None) -> dict:
         """
         Generate a IIIF Presentation API manifest.
         
@@ -46,8 +46,10 @@ class IiifManifestGenerator:
         manifest = Manifest(id=identifier, label=label)
         manifest.items = self.generateImageItems(images, manifestId=identifier)
         manifest.metadata = metadata
-        if license:
-            manifest.rights = license
+        if rights:
+            manifest.rights = rights
+        if requiredStatement:
+            manifest.requiredStatement = requiredStatement
         if thumbnails:
             manifest.thumbnail = self.generateThumbnails(thumbnails)
 

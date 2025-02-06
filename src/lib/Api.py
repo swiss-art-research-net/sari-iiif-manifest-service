@@ -52,18 +52,14 @@ class Api:
         # We need to resolve the absolute path
         self.config['fieldDefinitionsFile'] = os.path.join(os.path.dirname(configYmlPath), self.config['fieldDefinitionsFile'])
 
-        manifestLicenseQueryTemplate = manifestRequiredStatementQueryTemplate = imageLicenseQueryTemplate = imageRequiredStatementTemplate = None
-        if 'rights' in self.config:
-            if 'manifest' in self.config['rights']:
-                if 'licenseQuery' in self.config['rights']['manifest']:
-                    manifestLicenseQueryTemplate = self.config['rights']['manifest']['licenseQuery']
-                if 'requiredStatement' in self.config['rights']['manifest']:
-                    manifestRequiredStatementQueryTemplate = self.config['rights']['manifest']['requiredStatement']
-            if 'image' in self.config['rights']:
-                if 'licenseQuery' in self.config['rights']['image']:
-                    imageLicenseQueryTemplate = self.config['rights']['image']['licenseQuery']
-                if 'requiredStatement' in self.config['rights']['image']:
-                    imageRequiredStatementQueryTemplate = self.config['rights']['image']['requiredStatement']
+        # Load the rights configuration
+        rights = self.config.get("rights", {})
+        manifestRights = rights.get("manifest", {})
+        manifestLicenseQueryTemplate = manifestRights.get("licenseQuery")
+        manifestRequiredStatementQueryTemplate = manifestRights.get("requiredStatement")
+        imageRights = rights.get("image", {})
+        imageLicenseQueryTemplate = imageRights.get("licenseQuery")
+        imageRequiredStatementQueryTemplate = imageRights.get("requiredStatement")
 
         if 'thumbnails' in self.config['queries']:
             thumbnailQueryTemplate = self.config['queries']['thumbnails']
@@ -95,7 +91,8 @@ class Api:
             label=data['label'],
             images=data['images'],
             metadata=data['metadata'],
-            license=data['license'],
+            rights=data['rights'],
+            requiredStatement=data['requiredStatement'],
             thumbnails=data['thumbnails']
         )
 
@@ -113,6 +110,7 @@ class Api:
             "label": label,
             "metadata": metadata,
             "images": images,
-            "license": rights,
+            "rights": rights,
+            "requiredStatement": requiredStatement,
             "thumbnails": thumbnails
         }
