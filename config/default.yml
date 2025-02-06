@@ -92,16 +92,29 @@ queries:
                 crm:P90_has_value ?height .
         }
 
+# Queries for retrieving rights and rights statements for manifests and images
 rights:
-    # Retrieve the license for a given URI. The service expects a SPARQL SELECT query that returns a single
-    # variable ?license. The ?license is expected to be a Creative Commons license URI, a RightsStatements.org URL
-    # or similar (see: https://iiif.io/api/cookbook/recipe/0008-rights)
-    licenseQuery: |
-        PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
-        SELECT ?license WHERE {
-            $subject crm:P104_is_subject_to ?right .
-            ?right crm:P2_has_type ?license .
-        }
+    manifest:
+        # Retrieve the license for a manifest URI. The service expects a SPARQL SELECT query that returns a single
+        # variable ?value. The ?value is expected to be a Creative Commons license URI, a RightsStatements.org URL
+        # or similar (see: https://iiif.io/api/cookbook/recipe/0008-rights)
+        rightsQuery: |
+            PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+            SELECT ?value WHERE {
+                $subject crm:P104_is_subject_to ?right .
+                ?right crm:P2_has_type ?value .
+            }
+        # Retrieve a required statement for a manifest URI. The service expects a SPARQL SELECT query that returns
+        # two variables ?label and ?value. The ?label is a string that describes the statement, and the ?value is the
+        # value of the statement. (see: https://iiif.io/api/cookbook/recipe/0008-rights)
+        requiredStatementQuery: |
+            PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+            SELECT ?label ?value WHERE {
+                BIND("Credit:" as ?label)
+                BIND("ACME Institution" as ?value)
+            }
+    images:
+        # Retrieve the rights information for the image URIs. The queries are analogous to the manifest queries.
 
 options:
     # If set to true, the service will retrieve metadata for images

@@ -52,11 +52,6 @@ class Api:
         # We need to resolve the absolute path
         self.config['fieldDefinitionsFile'] = os.path.join(os.path.dirname(configYmlPath), self.config['fieldDefinitionsFile'])
 
-        if 'rights' in self.config and 'licenseQuery' in self.config['rights']:
-            licenseQueryTemplate = self.config['rights']['licenseQuery']
-        else:
-            licenseQueryTemplate = None
-
         if 'thumbnails' in self.config['queries']:
             thumbnailQueryTemplate = self.config['queries']['thumbnails']
         else:
@@ -65,7 +60,6 @@ class Api:
         self.manifest = IiifManifestGenerator(baseUri=self.config['namespaces']['manifests'])
         self.connector = FieldConnector(
             sparqlEndpoint=sparqlEndpoint,
-            licenseQueryTemplate=licenseQueryTemplate,
             labelQueryTemplate=self.config['queries']['label'],
             imageQueryTemplate=self.config['queries']['images'],
             thumbnailQueryTemplate=thumbnailQueryTemplate)
@@ -84,7 +78,8 @@ class Api:
             label=data['label'],
             images=data['images'],
             metadata=data['metadata'],
-            license=data['license'],
+            rights=data['rights'],
+            requiredStatement=data['requiredStatement'],
             thumbnails=data['thumbnails']
         )
 
@@ -93,14 +88,30 @@ class Api:
         metadata = self.connector.getMetadataForSubject(subject)
         images = self.connector.getImagesForSubject(subject)
         thumbnails = self.connector.getThumbnailsForSubject(subject)
-        rights = self.connector.getLicenseForSubject(subject)
-        if 'options' in self.config and 'imageMetadata' in self.config['options'] and self.config['options']['imageMetadata']:
+        # Retrieve optional rights information
+        requiredStatement = None
+        rights = None
+        if self.config.get('rights'):
+            rightsConfig = self.config['rights']
+            if rightsConfig.get('manifest'):
+                if rightsConfig['manifest'].get('rightsQuery'):
+                    rights = self.connector.getRightsForSubject(subject, rightsConfig['manifest']['rightsQuery'])
+                if rightsConfig['manifest'].get('requiredStatementQuery'):
+                    requiredStatement = self.connector.getRequiredStatementForSubject(subject, rightsConfig['manifest']['requiredStatementQuery'])
+            if rightsConfig.get('images'):
+                 for image in images:
+                     if rightsConfig['images'].get('rightsQuery'):
+                         image['rights'] = self.connector.getRightsForSubject(image['image'], rightsConfig['images']['rightsQuery'])
+                     if rightsConfig['images'].get('requiredStatementQuery'):
+                         image['requiredStatement'] = self.connector.getRequiredStatementForSubject(image['image'], rightsConfig['images']['requiredStatementQuery'])
+        if self.config.get('options', {}).get('imageMetadata'):
             for image in images:
                 image['metadata'] = self.connector.getMetadataForSubject(image['image'])
         return {
             "label": label,
             "metadata": metadata,
             "images": images,
-            "license": rights,
+            "rights": rights,
+            "requiredStatement": requiredStatement,
             "thumbnails": thumbnails
         }
