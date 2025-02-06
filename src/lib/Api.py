@@ -103,7 +103,7 @@ class Api:
         thumbnails = self.connector.getThumbnailsForSubject(subject)
         rights = self.connector.getLicenseForManifest(subject)
         requiredStatement = self.connector.getRequiredStatementForManifest(subject)
-        if 'options' in self.config and 'imageMetadata' in self.config['options'] and self.config['options']['imageMetadata']:
+        if self.config.get('options', {}).get('imageMetadata'):
             for image in images:
                 image['metadata'] = self.connector.getMetadataForSubject(image['image'])
         return {
