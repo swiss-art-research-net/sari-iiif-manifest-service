@@ -100,9 +100,15 @@ rights:
     manifest:
         rightsQuery: |
             PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
-            SELECT ?license WHERE {
+            SELECT ?value WHERE {
                 $subject crm:P104_is_subject_to ?right .
-                ?right crm:P2_has_type ?license .
+                ?right crm:P2_has_type ?value .
+            }
+        requiredStatementQuery: |
+            PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+            SELECT ?label ?value WHERE {
+                BIND("Credit:" as ?label)
+                BIND("ACME Institution" as ?value)
             }
 
 options:

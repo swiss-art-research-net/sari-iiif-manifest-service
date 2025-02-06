@@ -88,12 +88,20 @@ class Api:
         metadata = self.connector.getMetadataForSubject(subject)
         images = self.connector.getImagesForSubject(subject)
         thumbnails = self.connector.getThumbnailsForSubject(subject)
+        # Retrieve optional rights information
         if self.config.get('rights'):
             rightsConfig = self.config['rights']
-            if rightsConfig.get('manifest', {}).get('rightsQuery'):
-                rights = self.connector.getRightsForSubject(subject, rightsConfig['manifest']['rightsQuery'])
-            if rightsConfig.get('manifest', {}).get('requiredStatementQuery'):
-                requiredStatement = self.connector.getRequiredStatementForSubject(subject, rightsConfig['manifest']['requiredStatementQuery'])
+            if rightsConfig.get('manifest'):
+                if rightsConfig['manifest'].get('rightsQuery'):
+                    rights = self.connector.getRightsForSubject(subject, rightsConfig['manifest']['rightsQuery'])
+                if rightsConfig['manifest'].get('requiredStatementQuery'):
+                    requiredStatement = self.connector.getRequiredStatementForSubject(subject, rightsConfig['manifest']['requiredStatementQuery'])
+            if rightsConfig.get('images'):
+                for image in images:
+                    if rightsConfig['images'].get('rightsQuery'):
+                        image['rights'] = self.connector.getRightsForSubject(image['image'], rightsConfig['images']['rightsQuery'])
+                    if rightsConfig['images'].get('requiredStatementQuery'):
+                        image['requiredStatement'] = self.connector.getRequiredStatementForSubject(image['image'], rightsConfig['images']['requiredStatementQuery'])
         if self.config.get('options', {}).get('imageMetadata'):
             for image in images:
                 image['metadata'] = self.connector.getMetadataForSubject(image['image'])
