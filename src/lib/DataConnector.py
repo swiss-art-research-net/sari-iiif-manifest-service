@@ -78,11 +78,7 @@ class FieldConnector:
                  sparqlEndpoint: str, 
                  labelQueryTemplate=LABEL_QUERY, 
                  imageQueryTemplate=IMAGE_QUERY, 
-                 thumbnailQueryTemplate=None, 
-                 manifestLicenseQueryTemplate=None,
-                 manifestRequiredStatementQueryTemplate=None,
-                 imageLicenseQueryTemplate=None,
-                 imageRequiredStatementQueryTemplate=None
+                 thumbnailQueryTemplate=None
         ):
         self.endpoint = sparqlEndpoint
         self.fields = {}
@@ -90,10 +86,6 @@ class FieldConnector:
         self.labelQueryTemplate = labelQueryTemplate
         self.imageQueryTemplate = imageQueryTemplate
         self.thumbnailQueryTemplate = thumbnailQueryTemplate
-        self.manifestLicenseQueryTemplate = manifestLicenseQueryTemplate
-        self.manifestRequiredStatementQueryTemplate = manifestRequiredStatementQueryTemplate
-        self.imageLicenseQueryTemplate = imageLicenseQueryTemplate
-        self.imageRequiredStatementQueryTemplate = imageRequiredStatementQueryTemplate
 
         # Test connection
         self.sparql = SPARQLWrapper(self.endpoint)
@@ -156,13 +148,11 @@ class FieldConnector:
             raise Exception("No label found for subject '%s'" % subject)
         return result[0]['label']
     
-    def getLicenseForManifest(self, subject: str) -> str:
+    def getRightsForSubject(self, subject: str, rightsQueryTemplate: str) -> str:
         """
-        Get license for a Manifest URI.
+        Get rights for a URI.
         """
-        if self.manifestLicenseQueryTemplate is None:
-            return None
-        template = Template(self.manifestLicenseQueryTemplate)
+        template = Template(rightsQueryTemplate)
         query = template.substitute(subject=f"<{subject}>")
         self.sparql.setQuery(query)
         try:
@@ -173,15 +163,13 @@ class FieldConnector:
         result = self._sparqlResultToDict(queryResult)
         if len(result) == 0:
             return None
-        return result[0]['license']
+        return result[0]['value']
     
-    def getRequiredStatementForManifest(self, subject: str) -> str:
+    def getRequiredStatementForSubject(self, subject: str, requiredStatementTemplate: str) -> str:
         """
         Get required statement for a Manifest URI.
         """
-        if self.manifestRequiredStatementQueryTemplate is None:
-            return None
-        template = Template(self.manifestRequiredStatementQueryTemplate)
+        template = Template(requiredStatementTemplate)
         query = template.substitute(subject=f"<{subject}>")
         self.sparql.setQuery(query)
         try:

@@ -92,16 +92,18 @@ queries:
                 crm:P90_has_value ?height .
         }
 
+# Queries for retrieving rights and rights statements for manifests and images
 rights:
     # Retrieve the license for a given URI. The service expects a SPARQL SELECT query that returns a single
     # variable ?license. The ?license is expected to be a Creative Commons license URI, a RightsStatements.org URL
     # or similar (see: https://iiif.io/api/cookbook/recipe/0008-rights)
-    manifestLicenseQuery: |
-        PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
-        SELECT ?license WHERE {
-            $subject crm:P104_is_subject_to ?right .
-            ?right crm:P2_has_type ?license .
-        }
+    manifest:
+        rightsQuery: |
+            PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+            SELECT ?license WHERE {
+                $subject crm:P104_is_subject_to ?right .
+                ?right crm:P2_has_type ?license .
+            }
 
 options:
     # If set to true, the service will retrieve metadata for images
