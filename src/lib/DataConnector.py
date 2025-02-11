@@ -107,7 +107,14 @@ class FieldConnector:
                 except yaml.YAMLError as exc:
                     print(exc, "Could not load field definitions from file '%s'" % inputFile)
         if fieldDefinitions:
-            for d in fieldDefinitions['fields']:
+            if 'display' in fieldDefinitions:
+                fieldsToDisplay = []
+                # Create a dictionary for quick lookup
+                fieldDict = {field['id']: field for field in fieldDefinitions['fields']}
+                fieldsToDisplay = [fieldDict[fieldId] for fieldId in fieldDefinitions['display'] if fieldId in fieldDict]
+            else:
+                fieldsToDisplay = fieldDefinitions['fields']
+            for d in fieldsToDisplay:
                 self.fields[d['id']] = {
                     "label": d['label'],
                     "datatype": d['datatype'],
