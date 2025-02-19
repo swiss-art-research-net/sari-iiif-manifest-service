@@ -12,6 +12,10 @@ cache:
     #   w: weeks
     expiration: 1w
 
+# Aliases under which the manifests can be accessed (in addition to /manifest)
+# aliases:
+#   - iiif
+    
 # Namespaces for retrieving and generating URIs
 namespaces:
     # The namespace for entities. This is used to construct the URI for retrieving the subject 
