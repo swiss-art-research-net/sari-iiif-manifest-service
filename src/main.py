@@ -11,6 +11,7 @@ To run the application, use a command like 'uvicorn main:app'.
 """
 
 import os
+import yaml
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,6 +33,11 @@ app.add_middleware(
 SPARQL_ENDPOINT = os.environ['SPARQL_ENDPOINT']
 CONFIG_YML = os.environ['CONFIG_YML']
 
+# Load relevant configuration
+with open(CONFIG_YML, 'r') as f:
+    config = yaml.safe_load(f)
+    aliases = config.get('aliases', [])
+
 api = Api(CONFIG_YML, SPARQL_ENDPOINT)
 
 @app.get("/", response_class=HTMLResponse)
@@ -51,3 +57,9 @@ def readRoot():
 @app.get("/manifest/{item_type}/{item_id}")
 def getManifest(item_type: str, item_id: str):
     return api.getManifest(type=item_type, id=item_id)
+
+# Register aliases dynamically
+for alias in aliases:
+    @app.get(f"/{alias}/{{item_type}}/{{item_id}}")
+    async def aliasManifest(item_type: str, item_id: str, alias=alias):
+        return api.getManifest(type=item_type, id=item_id)
