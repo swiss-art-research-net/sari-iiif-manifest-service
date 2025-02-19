@@ -16,7 +16,7 @@ cache:
 # aliases:
 #   - iiif
     
-    # Namespaces for retrieving and generating URIs
+# Namespaces for retrieving and generating URIs
 namespaces:
     # The namespace for entities. This is used to construct the URI for retrieving the subject 
     # based on a type and ID. For example, for entities of the form 'https://example.org/object/123', 
