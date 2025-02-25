@@ -1,0 +1,215 @@
+# Path to the file containing the field definitions
+fieldDefinitionsFile: ./fieldDefinitions.yml
+
+# Cache
+cache:
+    # Set the cache expiration time as a duration string composed of a number and a unit.
+    # Valid time units are: 
+    #   s: seconds
+    #   m: minutes
+    #   h: hours
+    #   d: days
+    #   w: weeks
+    expiration: 8w
+
+# Aliases under which the manifests can be accessed (in addition to /manifest)
+aliases:
+    - iiif
+
+# Namespaces for retrieving and generating URIs
+namespaces:
+    # The namespace for entities. This is used to construct the URI for retrieving the subject 
+    # based on a type and ID. For example, for entities of the form 'https://example.org/object/123', 
+    # the namespace would be 'https://example.org/'. (The type would be 'object', and the ID
+    # would be '123'. These URIs must exist in the triplestore)
+    entities: https://data.skkg.ch/
+
+    # The namespace for manifests. This is used to construct the URI for the manifest based
+    # on a type and ID. For example, for manifests of the form 'http://iiif.example.com/manifest/object/123',
+    # the namespace would be 'http://iiif.example.com/manifest/'.
+    manifests: https://manifest.digital.skkg.ch/iiif/
+
+# Queries for retrieving labels and images for URIs
+queries:
+    # The label query template is used to retrieve labels for URIs.
+    # The service expects a SPARQL SELECT query that returns a single
+    # variable ?label. The query is executed with $subject replaced by
+    # the URI of the subject.
+    label: |
+        PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT ?label WHERE {
+            {
+                $subject skos:prefLabel ?l1 .
+            } UNION {
+                $subject rdfs:label ?l2.
+            } UNION {
+                $subject crm:P190_has_symbolic_content ?l3 .
+            } UNION {
+                $subject crm:P90_has_value ?l4 .
+            }
+            BIND(COALESCE(?l1, ?l2, ?l3, ?l4) AS ?label)
+        } LIMIT 1
+    # The image query template is used to retrieve images for URIs.
+    # The service expects a SPARQL SELECT query that returns three
+    # variables ?image, ?width and ?height. The query is executed with
+    # $subject replaced by the URI of the subject.
+    images: |
+        PREFIX aat: <http://vocab.getty.edu/aat/>
+        PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+        PREFIX la: <https://linked.art/ns/terms/>
+        PREFIX type: <https://data.skkg.ch/type/>
+        SELECT DISTINCT ?image ?width ?height WHERE {
+            $subject crm:P138i_has_representation?/la:digitally_shown_by ?imageObject .
+            ?imageObject la:digitally_available_via/la:access_point ?image ;
+                crm:P43_has_dimension ?dimWidth ;
+                crm:P43_has_dimension ?dimHeight .
+            ?dimWidth crm:P2_has_type aat:300055647 ;
+                crm:P90_has_value ?width .
+            ?dimHeight crm:P2_has_type aat:300055644 ;
+                crm:P90_has_value ?height .
+
+            ?imageObject ^la:digitally_shown_by ?multimediaItem .
+            ?multimediaItem crm:P1_is_identified_by ?orderId .
+            ?orderId crm:P2_has_type type:sortlnu ;
+                crm:P190_has_symbolic_content ?order .
+            ?assignment crm:P140_assigned_attribute_to ?multimediaItem ;
+                crm:P141_assigned ?orderId ;
+                crm:P16_used_specific_object ?subject .
+
+            OPTIONAL {
+                ?multimediaItem crm:P2_has_type ?multimediaItemType .
+                ?multimediaItemType crm:P127_has_broader_term type:23089 .
+            } 
+            OPTIONAL {
+                BIND(aat:300404450 as ?primary)
+                ?multimediaItem crm:P2_has_type aat:300404450 .
+                ?primary_assignment crm:P140_assigned_attribute_to ?multimediaItem ;
+                crm:P141_assigned ?primary ;
+                crm:P16_used_specific_object ?subject .
+                BIND("true"^^xsd:boolean as ?is_primary)
+            }
+        } ORDER BY DESC(?is_primary) ASC(?multimediaItemType) ASC(?order)
+
+    # The thumbnail query template is used to retrieve thumbnails for URIs.
+    # The service expects a SPARQL SELECT query that returns three variables
+    # ?thumbnail, ?width and ?height. The query is executed with $subject
+    thumbnails: |
+        PREFIX aat: <http://vocab.getty.edu/aat/>
+        PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+        PREFIX la: <https://linked.art/ns/terms/>
+        SELECT DISTINCT ?thumbnail ?width ?height WHERE {
+            $subject crm:P138i_has_representation ?thumbnailObject .
+            ?thumbnailObject crm:P2_has_type aat:300404450 .
+
+            ?assignment crm:P140_assigned_attribute_to ?thumbnailObject ;
+            crm:P141_assigned aat:300404450 ;
+            crm:P16_used_specific_object ?subject .
+
+            ?thumbnailObject la:digitally_shown_by ?imageObject .
+            ?imageObject la:digitally_available_via/la:access_point ?thumbnail ;
+                crm:P43_has_dimension ?dimWidth ;
+                crm:P43_has_dimension ?dimHeight .
+            ?dimWidth crm:P2_has_type aat:300055647 ;
+                crm:P90_has_value ?width .
+            ?dimHeight crm:P2_has_type aat:300055644 ;
+                crm:P90_has_value ?height .
+        }
+
+# Queries for retrieving rights and rights statements for manifests and images
+rights:
+    # Retrieve the license for a given URI. The service expects a SPARQL SELECT query that returns a single
+    # variable ?license. The ?license is expected to be a Creative Commons license URI, a RightsStatements.org URL
+    # or similar (see: https://iiif.io/api/cookbook/recipe/0008-rights)
+    manifest:
+        requiredStatementQuery: |
+            PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+            SELECT ?label ?value WHERE {
+                $subject crm:P104_is_subject_to ?right .
+                ?right crm:P2_has_type ?license .
+                  VALUES (?license ?value ?uri) {
+                    (<https://data.skkg.ch/type/42135/241970> "Das Werk ist gemeinfrei. Die Abbildungen dürfen nach CC BY 4.0 genutzt werden (unter Nennung von Künstler:in und Werkangaben)."  <https://creativecommons.org/publicdomain/zero/1.0/>)
+                    (<https://data.skkg.ch/type/42135/134775> "Das Werk ist urheberrechtlich geschützt." <https://creativecommons.org/licenses/by/4.0/>)
+                }  
+                BIND("Rechte:" as ?label)
+            }
+    images: 
+        requiredStatementQuery: |
+            PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+            PREFIX la: <https://linked.art/ns/terms/>
+            PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+            PREFIX crmaaa: <https://takin.solutions/ontologies/crmaaa/>
+            PREFIX aat: <http://vocab.getty.edu/aat/>
+            SELECT DISTINCT ?label ?value WHERE {
+                BIND("Credit:" as ?label)
+                ?image la:digitally_shown_by/la:digitally_available_via/la:access_point $subject .
+                ?image crm:P104_is_subject_to ?right .
+
+                OPTIONAL {
+                    ?right crm:P2_has_type ?right_type .
+                    ?right_type skos:prefLabel ?right_type_label .
+                    VALUES (?right_type) {
+                        (<https://data.skkg.ch/type/56153/255981>)
+                        (<https://data.skkg.ch/type/56153/255982>)
+                    }
+                }
+
+                OPTIONAL {
+                    ?image crm:P104_is_subject_to ?original_right, ?successor_right .
+                    ?original_right crm:P75i_is_possessed_by ?original_right_holder .
+                    ?original_right_holder skos:prefLabel ?original_right_holder_label .
+                    ?successor_right crm:P75i_is_possessed_by ?successor_right_holder .
+                    ?successor_right_holder skos:prefLabel ?successor_right_holder_label .
+                    ?successor_right_status crm:P67_refers_to ?successor_right .
+                    ?original_right_status crm:P67_refers_to ?original_right .
+                    ?original_right_status crm:P173i_ends_after_or_with_the_start_of ?successor_right_status .
+                    ?successor_right_status crm:P4_has_time-span/crm:P82b_end_of_the_end ?successor_right_end_year .
+                }
+
+                OPTIONAL {
+                    ?right_status a crmaaa:ZE30_Property_Right_Status ;
+                        crm:P67_refers_to ?right ;
+                        crm:P4_has_time-span/crm:P82b_end_of_the_end ?right_date .
+                }
+
+                OPTIONAL {
+                    ?image crm:P94i_was_created_by/crm:P9_consists_of ?photography .
+                    ?photography crm:P2_has_type aat:300054225 .
+                
+                    OPTIONAL {
+                        ?photography crm:P14_carried_out_by/skos:prefLabel ?photographer .
+                    }
+                
+                    OPTIONAL {
+                        ?photography crm:P4_has_time-span/crm:P82_at_some_time_within ?photography_date .
+                    }
+                }
+
+                BIND(
+                    CONCAT(
+                        "© ",
+                        COALESCE(?successor_right_holder_label, ""), 
+                        IF(BOUND(?right_date), CONCAT(" / ", YEAR(?right_date)), ""), 
+                        IF(BOUND(?original_right_holder_label), CONCAT(" ", ?original_right_holder_label), ""), 
+                        IF(BOUND(?right_date) || BOUND(?original_right_holder_label), ". ", ""),
+                        IF(
+                        BOUND(?photography), 
+                        CONCAT(
+                            "Foto:", 
+                            IF(BOUND(?photographer), CONCAT(" ", ?photographer), ""), 
+                            IF(BOUND(?photography_date), CONCAT(" ", STR(YEAR(?photography_date))), "")
+                        ), 
+                        ""
+                        ),
+                        IF(BOUND(?right_type_label), CONCAT(" ", ?right_type_label), "")
+                    ) 
+                    AS ?value
+                )
+            } 
+            
+
+options:
+    # If set to true, the service will retrieve metadata for images
+    # default: False
+    imageMetadata: True
