@@ -90,6 +90,7 @@ class FieldConnector:
         # Test connection
         self.sparql = SPARQLWrapper(self.endpoint)
         self.sparql.setReturnFormat(JSON)
+        self.sparql.setMethod('POST')
         self.sparql.setQuery("SELECT ?s ?p ?o WHERE {?s ?p ?o} LIMIT 1")
         try:
             self.sparql.query().convert()
@@ -191,40 +192,53 @@ class FieldConnector:
     
     def getMetadataForSubject(self, subject: str) -> dict:
         """
-        Get the values for all fields for a given URI.
+        Efficiently retrieves metadata for a given subject by batching SPARQL queries.
         """
 
         metadata = []
-        namespaces = ""
-        for prefix, namespace in self.namespaces.items():
-            namespaces += "PREFIX " + prefix + ": <" + namespace + ">\n"
         
-        for field in self.fields.values():
-            query = namespaces + field['query'].replace("$subject", "<%s>" % subject).replace("?subject", "<%s>" % subject)
-            self.sparql.setQuery(query)
-            try:
-                result = self._sparqlResultToDict(self.sparql.query().convert())
-            except:
-                raise Exception("Could not execute query: %s" % query)
+        # Build namespaces once
+        namespaces = "\n".join(f"PREFIX {prefix}: <{namespace}>" for prefix, namespace in self.namespaces.items())
 
-            if result:
-                # might be several values
-                valueLabels = []
-                for row in result:
-                    value = row['value']
-                    if not 'label' in result and field['datatype'] == 'xsd:anyURI':
-                        label = self.getLabelForSubject(value)
-                    else:
-                        label = result[0]['value']
-                    valueLabels.append(label)
-                metadata.append({
-                    "label": {
-                        "none": [field['label']]
-                    },
-                    "value": {
-                        "none": [', '.join(valueLabels)]
-                    }
-                })
+        # Build a single combined query for all fields
+        queries = []
+        field_labels = {}
+        for field_name, field in self.fields.items():
+            queries.append(f"{{ {field['query'].replace('$subject', f'<{subject}>').replace('?subject', f'<{subject}>')} }}")
+            field_labels[field_name] = field['label']
+        
+        combined_query = f"{namespaces}\nSELECT * WHERE {{ {' UNION '.join(queries)} }}"
+        
+        self.sparql.setQuery(combined_query)
+        try:
+            results = self._sparqlResultToDict(self.sparql.query().convert())
+        except Exception as e:
+            raise Exception(f"Could not execute query: {combined_query}\nError: {e}")
+
+        # Process results efficiently
+        values_by_label = {}
+        for row in results:
+            value = row.get("value", "")
+            if not value:
+                continue
+            field_label = field_labels.get(row.get("field_name", ""), "Unknown Field")
+
+            if value.startswith("http"):  # If it's a URI, get the label if needed
+                label = self.getLabelForSubject(value) if "label" not in row else row["label"]
+            else:
+                label = value
+            
+            if field_label not in values_by_label:
+                values_by_label[field_label] = []
+            values_by_label[field_label].append(label)
+
+        # Format metadata as expected
+        for field_label, values in values_by_label.items():
+            metadata.append({
+                "label": {"none": [field_label]},
+                "value": {"none": [", ".join(values)]}
+            })
+
         return metadata
     
     def getThumbnailsForSubject(self, subject: str) -> list:
