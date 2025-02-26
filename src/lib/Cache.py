@@ -1,6 +1,7 @@
 from os import remove as removeFile
 from os.path import exists, getmtime, join
 
+import json
 import pickle
 import time
 import hashlib
@@ -12,7 +13,13 @@ class Cache:
 
     def cache(self, func):
         def wrapper(*args, **kwargs):
-            key = func.__name__ + str(args) + str(kwargs)
+            relevant_args = args[1:] if args and hasattr(args[0], '__class__') else args
+            key = json.dumps({
+                "func": func.__name__,
+                "args": relevant_args,
+                "kwargs": kwargs
+            }, sort_keys=True, separators=(',', ':'))
+
             if self._isInCache(key):
                 return self._retrieveFromCache(key)
             else:
