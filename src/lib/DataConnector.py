@@ -120,6 +120,8 @@ class FieldConnector:
                     "datatype": d['datatype'],
                     "query": [query['select'] for query in d['queries'] if 'select' in query ][0]
                 }
+                if 'domain' in d:
+                    self.fields[d['id']]['domain'] = d['domain']
             self.namespaces = fieldDefinitions['namespaces']
 
     def getImagesForSubject(self, subject: str) -> list:
@@ -200,7 +202,11 @@ class FieldConnector:
         for prefix, namespace in self.namespaces.items():
             namespaces += "PREFIX " + prefix + ": <" + namespace + ">\n"
         
+        types = self.getTypesForSubject(subject)
+
         for field in self.fields.values():
+            if 'domain' in field and not any([t in types for t in field['domain']]):
+                continue
             query = namespaces + field['query'].replace("$subject", "<%s>" % subject).replace("?subject", "<%s>" % subject)
             self.sparql.setQuery(query)
             try:
@@ -250,6 +256,30 @@ class FieldConnector:
         thumbnails = self._sparqlResultToDict(queryResult)
         return thumbnails
     
+    def getTypesForSubject(self, subject: str) -> list:
+        """
+        Get types for a given URI.
+        """
+        namespaces = ""
+        for prefix, namespace in self.namespaces.items():
+            namespaces += "PREFIX " + prefix + ": <" + namespace + ">\n"
+        query = namespaces + "SELECT ?type WHERE {<%s> a/rdfs:subClassOf* ?type}" % subject
+        self.sparql.setQuery(query)
+        try:
+            result = self._sparqlResultToDict(self.sparql.query().convert())
+        except:
+            raise Exception("Could not execute query: %s" % query)
+        if result:
+            types = [row['type'] for row in result]
+        else:
+            types = []
+        # Add namespaced versions of types
+        for i, type in enumerate(types):
+            for prefix, namespace in self.namespaces.items():
+                if type.startswith(namespace):
+                    types.append(prefix + ":" + type.replace(namespace, ""))
+        return types
+
     def setLabelQueryTemplate(self, template: str):
         """
         Set the template for the label query. 
