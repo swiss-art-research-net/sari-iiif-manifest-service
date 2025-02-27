@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sari-iiif-manifest
+  namespace: qlever
+  labels:
+    app: sari-iiif-manifest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sari-iiif-manifest
+  template:
+    metadata:
+      labels:
+        app: sari-iiif-manifest
+    spec:
+      imagePullSecrets:
+      - name: registry-jb-secret
+      initContainers:
+      - name: init-copy-config
+        image: registry.digitalocean.com/registry-jb/sari-iiif-manifest-service:1.1.0
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "Copying config files to PVC..."
+            cp /skkg-config/config.yml /config/config.yml
+            cp /skkg-config/fieldDefinitions.yml /config/fieldDefinitions.yml
+            echo "Config files copied successfully."
+        volumeMounts:
+          - name: config-volume
+            mountPath: /config
+      containers:
+      - name: sari-iiif-manifest
+        image: registry.digitalocean.com/registry-jb/sari-iiif-manifest-service:1.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+          - name: CONFIG_YML
+            value: "/skkg-config/config.yml"
+          - name: SPARQL_ENDPOINT
+            value: "http://104.248.100.4:7019"
+        volumeMounts:
+          - name: config-volume
+            mountPath: /config
+          - name: cache-volume
+            mountPath: /cache
+      volumes:
+        - name: config-volume
+          persistentVolumeClaim:
+            claimName: config-pvc
+        - name: cache-volume
+          persistentVolumeClaim:
+            claimName: cache-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sari-iiif-manifest-service
+  namespace: qlever
+spec:
+  selector:
+    app: sari-iiif-manifest
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer

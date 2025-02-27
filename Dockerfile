@@ -9,18 +9,18 @@ RUN locale-gen en_US.UTF-8
 # Install Python packages
 RUN pip install fastapi "uvicorn[standard]" sparqlwrapper iiif-prezi3
 
-# Add scripts
-ADD ./src /src
-ADD ./config /config
-
 # Prepare directories and volumes
-RUN mkdir /cache
 WORKDIR /src
 
-VOLUME /config
+VOLUME /skkg-config
 VOLUME /cache
+
+# Add scripts and config
+COPY ./src /src
+COPY ./examples/skkg/config.yml /skkg-config/config.yml
+COPY ./examples/skkg/fieldDefinitions.yml /skkg-config/fieldDefinitions.yml
 
 EXPOSE 8080
 
 # Run idling
-ENTRYPOINT uvicorn main:app --host 0.0.0.0 --port 8080
+ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

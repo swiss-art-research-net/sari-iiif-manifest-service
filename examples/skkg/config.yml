@@ -60,6 +60,7 @@ queries:
         PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
         PREFIX la: <https://linked.art/ns/terms/>
         PREFIX type: <https://data.skkg.ch/type/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         SELECT DISTINCT ?image ?width ?height WHERE {
             $subject crm:P138i_has_representation?/la:digitally_shown_by ?imageObject .
             ?imageObject la:digitally_available_via/la:access_point ?image ;
