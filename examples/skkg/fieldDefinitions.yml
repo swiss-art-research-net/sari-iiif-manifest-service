@@ -41,6 +41,7 @@ fields:
 
     - id: mp_actor_type
       label: Typ (Person/Körperschaft)
+      domain: crm:E39_Actor
       datatype: xsd:anyURI
       queries:
         - select: 'SELECT ?value WHERE {
@@ -62,6 +63,7 @@ fields:
     - id: mp_ankaufswert
       label: Ankaufswert
       datatype: xsd:string
+      domain: skkg:Object
       queries:
         - select: 'SELECT DISTINCT ?value WHERE {
             $subject crm:P24i_changed_ownership_through ?acquisition .
@@ -92,6 +94,7 @@ fields:
     - id: mp_ausst_ort
       label: Ausst.-Ort
       datatype: xsd:anyURI
+      domain: skkg:Exhibition
       queries:
         - select: 'SELECT ?value WHERE {
             $subject a skkg:Exhibition ;
@@ -101,6 +104,7 @@ fields:
     - id: mp_autor
       label: Autor
       datatype: xsd:string
+      domain: skkg:Literature
       queries:
         - select: 'SELECT ?value WHERE {
             $subject frbroo:R24i_was_created_through/crm:P9_consists_of ?authoring .
@@ -116,6 +120,7 @@ fields:
     - id: mp_band
       label: Band
       datatype: xsd:string
+      domain: skkg:Literature
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P67i_is_referred_to_by ?statement .
@@ -126,6 +131,7 @@ fields:
     - id: mp_bem_erwerb
       label: Bem. Erwerb
       datatype: xsd:string
+      domain: skkg:Object
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P24i_changed_ownership_through ?acquisition .
@@ -146,6 +152,7 @@ fields:
     - id: mp_bildrechte
       label: Bildrechte
       datatype: xsd:string
+      domain: skkg:Multimedia
       queries:
         - select: 'SELECT DISTINCT ?value WHERE {
             $subject crm:P104_is_subject_to ?right .
@@ -224,6 +231,7 @@ fields:
 
     - id: mp_daten
       label: Daten
+      domain: crm:E39_Actor
       datatype: xsd:string
       queries:
         - select: 'SELECT ?value WHERE {
@@ -259,6 +267,7 @@ fields:
     - id: mp_datum_mul
       label: Datum (Multimedia)
       datatype: xsd:string
+      domain: skkg:Multimedia
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P94i_was_created_by ?creation .
@@ -268,6 +277,7 @@ fields:
 
     - id: mp_edition_auflage
       label: Edition/Auflage
+      domain: skkg:Literature
       datatype: xsd:string
       queries:
         - select: 'SELECT ?value WHERE {
@@ -278,6 +288,7 @@ fields:
 
     - id: mp_erstelldatum_mul
       label: Erstelldatum (Multimedia)
+      domain: skkg:Multimedia
       datatype: xsd:string
       queries:
         - select: 'SELECT ?value WHERE {
@@ -318,6 +329,7 @@ fields:
     - id: mp_exh_from
       label: Von
       datatype: xsd:date
+      domain: skkg:Exhibition
       queries:
         - select: 'SELECT ?value WHERE {
             $subject a skkg:Exhibition ;
@@ -327,6 +339,7 @@ fields:
     - id: mp_exh_intern_extern
       label: Int./Ext.
       datatype: xsd:anyURI
+      domain: skkg:Exhibition
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P2_has_type ?value .
@@ -336,6 +349,7 @@ fields:
     - id: mp_exh_other_venue
       label: Stationen
       datatype: xsd:anyURI
+      domain: skkg:Exhibition
       queries:
         - select: 'SELECT ?value WHERE {
             $subject a skkg:Exhibition ;
@@ -345,6 +359,7 @@ fields:
     - id: mp_exh_to
       label: Bis
       datatype: xsd:date
+      domain: skkg:Exhibition
       queries:
         - select: 'SELECT ?value WHERE {
             $subject a skkg:Exhibition ;
@@ -363,6 +378,7 @@ fields:
     - id: mp_geschlecht
       label: Geschlecht
       datatype: xsd:anyURI
+      domain: skkg:Person
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P2_has_type ?value .
@@ -372,6 +388,7 @@ fields:
     - id: mp_herausgeber
       label: Herausgeber
       datatype: xsd:anyURI
+      domain: skkg:Literature
       queries:
         - select: 'SELECT ?value WHERE {
             $subject frbroo:R24i_was_created_through/crm:P9_consists_of ?editing .
@@ -382,6 +399,7 @@ fields:
     - id: mp_in_lit
       label: In
       datatype: xsd:anyURI
+      domain: skkg:Literature
       queries: 
         - select: 'SELECT ?value WHERE {
             $subject a skkg:Literature ;
@@ -447,6 +465,7 @@ fields:
     - id: mp_isbn
       label: ISBN
       datatype: xsd:string
+      domain: skkg:Literature
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P1_is_identified_by ?isbn .
@@ -457,6 +476,7 @@ fields:
     - id: mp_jahr_lit
       label: Jahr
       datatype: xsd:string
+      domain: skkg:Literature
       queries:
         - select: 'SELECT ?value WHERE {
             $subject frbroo:R24i_was_created_through/crm:P4_has_time-span/crm:P82_at_some_time_within ?value .
@@ -464,8 +484,8 @@ fields:
 
     - id: mp_land_address
       label: Land
-      domain: skkg:Address
       datatype: xsd:anyURI
+      domain: skkg:Address
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P76_has_contact_point/crm:P106_is_composed_of ?value .
@@ -483,6 +503,7 @@ fields:
     - id: mp_mat_technik
       label: Mat./Technik
       datatype: xsd:string
+      domain: skkg:Object
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P45_consists_of ?material .
@@ -510,6 +531,7 @@ fields:
     - id: mp_mat_technik_ausgabe
       label: Mat./Tech. Ausgabe
       datatype: xsd:string
+      domain: skkg:Object
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P67i_is_referred_to_by ?statement .
@@ -520,6 +542,7 @@ fields:
     - id: mp_masse
       label: Masse
       datatype: xsd:string
+      domain: skkg:Object
       queries:
         - select: 'SELECT ?value WHERE {
             {
@@ -551,6 +574,7 @@ fields:
     - id: mp_name
       label: Name
       datatype: xsd:string
+      domain: crm:E39_Actor
       queries:
         - select: 'SELECT DISTINCT ?value WHERE {
             $subject crm:P1_is_identified_by ?name .
@@ -576,6 +600,7 @@ fields:
     - id: mp_nationalitaet
       label: Nationalität
       datatype: xsd:anyURI
+      domain: crm:E39_Actor
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P2_has_type ?value .
@@ -584,8 +609,8 @@ fields:
 
     - id: mp_obj_obj_ref
       label: Obj.-Obj.-Ref.
-      domain: skkg:Object
       datatype: xsd:anyURI
+      domain: skkg:Object
       queries:
         - select: 'SELECT ?value WHERE {
             ?value crm:P129_is_about $subject ;
@@ -594,8 +619,8 @@ fields:
 
     - id: mp_ort_address
       label: Ort
-      domain: skkg:Address
       datatype: xsd:string
+      domain: skkg:Address
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P76_has_contact_point/crm:P106_is_composed_of ?city .
@@ -626,6 +651,7 @@ fields:
     - id: mp_person_korp_lit
       label: Pers./Körp
       datatype: xsd:anyURI
+      domain: skkg:Literature
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P67_refers_to ?value .
@@ -635,6 +661,7 @@ fields:
     - id: mp_person_korp_lit_typed
       label: Pers./Körp (typisiert)
       datatype: xsd:string
+      domain: skkg:Literature
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P01i_is_domain_of ?reference.
@@ -649,6 +676,7 @@ fields:
     - id: mp_pers_korp_obj
       label: Pers./Körp
       datatype: xsd:anyURI
+      domain: skkg:Object
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P108i_was_produced_by ?production .
@@ -679,6 +707,7 @@ fields:
     - id: mp_series
       label: Reihe
       datatype: xsd:anyURI
+      domain: skkg:Literature
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P106i_forms_part_of ?value .
@@ -725,6 +754,7 @@ fields:
     - id: mp_typ_adr
       label: Typ (Adresse)
       datatype: xsd:anyURI
+      domain: skkg:Address
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P2_has_type ?value .
@@ -734,6 +764,7 @@ fields:
     - id: mp_typ_obj_cat
       label: Typ (Objekt Kategorie)
       datatype: xsd:anyURI
+      domain: skkg:Object
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P2_has_type ?value .
@@ -743,6 +774,7 @@ fields:
     - id: mp_typ_exh
       label: Typ (Ausstellung)
       datatype: xsd:anyURI
+      domain: skkg:Exhibition
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P2_has_type ?value .
@@ -752,6 +784,7 @@ fields:
     - id: mp_typ_mul
       label: Typ (Multimedia)
       datatype: xsd:anyURI
+      domain: skkg:Multimedia
       queries:
         - select: 'SELECT DISTINCT ?value WHERE {
             $subject crm:P2_has_type ?value .
@@ -770,6 +803,7 @@ fields:
     - id: mp_typ_obj_type
       label: Typ (Objekt Typ)
       datatype: xsd:anyURI
+      domain: skkg:Object
       queries:
         - select: 'SELECT ?value WHERE {
             $subject crm:P2_has_type ?value .
@@ -779,6 +813,7 @@ fields:
     - id: mp_verlag
       label: Verlag
       datatype: xsd:anyURI
+      domain: skkg:Literature
       queries:
         - select: 'SELECT ?value WHERE {
             $subject frbroo:R24i_was_created_through/crm:P9_consists_of ?editing .
@@ -798,6 +833,7 @@ fields:
     - id: mp_weitere_namen_adress
       label: Weitere Namen
       datatype: xsd:string
+      domain: skkg:Address
       queries:
         - select: 'SELECT DISTINCT ?value WHERE {
             $subject crm:P1_is_identified_by ?name .
@@ -823,6 +859,7 @@ fields:
     - id: mp_weitere_namen_person
       label: Weitere Namen
       datatype: xsd:string
+      domain: skkg:Person
       queries:
         - select: 'SELECT ?value WHERE {
           $subject crm:P1_is_identified_by ?name .
@@ -918,7 +955,6 @@ display:
 - mp_ankaufswert
 - mp_erw_ref_nr
 - mp_bem_erwerb
-- mp_zustand
 - mp_creditline
 - mp_ausst_ort
 - mp_exh_from
