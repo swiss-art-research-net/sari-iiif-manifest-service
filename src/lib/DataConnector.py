@@ -195,6 +195,7 @@ class FieldConnector:
         """
 
         metadata = []
+        labelCache = {}
         namespaces = ""
         for prefix, namespace in self.namespaces.items():
             namespaces += "PREFIX " + prefix + ": <" + namespace + ">\n"
@@ -213,7 +214,11 @@ class FieldConnector:
                 for row in result:
                     value = row['value']
                     if not 'label' in result and field['datatype'] == 'xsd:anyURI':
-                        label = self.getLabelForSubject(value)
+                        if value in labelCache:
+                            label = labelCache[value]
+                        else:    
+                            label = self.getLabelForSubject(value)
+                            labelCache[value] = label
                     else:
                         label = result[0]['value']
                     valueLabels.append(label)
