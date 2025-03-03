@@ -210,7 +210,7 @@ rights:
                 CONCAT(
                     ?right_type, " ", 
                     IF(BOUND(?original_right_holder_name), CONCAT(?original_right_holder_name, "/"), ""), 
-                    IF(BOUND(?right_year), CONCAT(xsd:string(?right_year), " "), ""), 
+                    IF(BOUND(?right_year), CONCAT(xsd:string(?right_year), ", "), ""), 
                     IF(BOUND(?right_holder_name), ?right_holder_name, ""), 
                     IF(
                         BOUND(?creator_name) || BOUND(?photography_year), 
