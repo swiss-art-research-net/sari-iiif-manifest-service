@@ -150,7 +150,7 @@ rights:
                     ?predecessor_right_status crm:P173i_ends_after_or_with_the_start_of ?original_right_status .
                 }
                 OPTIONAL {
-                    $subject crm:P104_is_subject_to ?original_right .
+                    ?image crm:P104_is_subject_to ?original_right .
                     ?right_status crm:P67_refers_to ?right .
                     ?original_right_status crm:P67_refers_to ?original_right .
                     ?original_right_status crm:P173i_ends_after_or_with_the_start_of ?right_status .
@@ -187,7 +187,7 @@ rights:
                     ?right crm:P3_has_note ?right_note
                 }
                 OPTIONAL {
-                    ?subject crm:P94i_was_created_by ?creation .
+                    ?image crm:P94i_was_created_by ?creation .
                     OPTIONAL {
                     ?creation crm:P14_carried_out_by ?creator .
                         ?creator crm:P1_is_identified_by/crm:P106_is_composed_of ?creator_name_entity .
