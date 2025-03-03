@@ -207,20 +207,21 @@ rights:
                     }
                 }
                 BIND(
-                    CONCAT(
-                        ?right_type, " ", 
-                        IF(BOUND(?original_right_holder_name), CONCAT(?original_right_holder_name, "/"), ""), 
-                        IF(BOUND(?right_holder_name), ?right_holder_name, ""), 
-                        IF(BOUND(?right_year), CONCAT(" ", xsd:string(?right_year)), ""), 
-                        IF(
-                            BOUND(?creator_name) || BOUND(?photography_year), 
-                            CONCAT(" Foto:", 
-                                IF(BOUND(?creator_name), CONCAT(" ", ?creator_name), ""),
-                                IF(BOUND(?photography_year), CONCAT(" ", xsd:string(?photography_year)), "")
-                        ),"")
-                    ) 
-                    AS ?value
+                CONCAT(
+                    ?right_type, " ", 
+                    IF(BOUND(?original_right_holder_name), CONCAT(?original_right_holder_name, "/"), ""), 
+                    IF(BOUND(?right_year), CONCAT(xsd:string(?right_year), " "), ""), 
+                    IF(BOUND(?right_holder_name), ?right_holder_name, ""), 
+                    IF(
+                        BOUND(?creator_name) || BOUND(?photography_year), 
+                        CONCAT(IF(BOUND(?original_right_holder_name) || BOUND(?right_year) || BOUND(?right_holder_name), ". Foto:", "Foto:"), 
+                            IF(BOUND(?creator_name), CONCAT(" ", ?creator_name), ""),
+                            IF(BOUND(?photography_year), CONCAT(" ", xsd:string(?photography_year)), "")
+                    ),"")
+                ) 
+                AS ?value
                 )
+            
             }
             
 
