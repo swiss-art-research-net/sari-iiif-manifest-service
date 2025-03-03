@@ -214,7 +214,7 @@ rights:
                         IF(BOUND(?right_year), CONCAT(" ", xsd:string(?right_year)), ""), 
                         IF(
                             BOUND(?creator_name) || BOUND(?photography_year), 
-                            CONCAT("Foto:", 
+                            CONCAT(" Foto:", 
                                 IF(BOUND(?creator_name), CONCAT(" ", ?creator_name), ""),
                                 IF(BOUND(?photography_year), CONCAT(" ", xsd:string(?photography_year)), "")
                         ),"")
