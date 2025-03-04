@@ -10,7 +10,7 @@ cache:
     #   h: hours
     #   d: days
     #   w: weeks
-    expiration: 8w
+    expiration: 1w
 
 # Aliases under which the manifests can be accessed (in addition to /manifest)
 aliases:
