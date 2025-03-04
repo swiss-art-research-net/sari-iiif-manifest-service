@@ -1,6 +1,7 @@
 # Local configuration
 .env
 docker-compose.override.yml
+local
 __pycache__
 
 # Folder structure

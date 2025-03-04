@@ -146,68 +146,84 @@ rights:
                 BIND("Credit:" as ?label)
                 ?image la:digitally_shown_by/la:digitally_available_via/la:access_point $subject .
                 ?image crm:P104_is_subject_to ?right .
-
-                OPTIONAL {
-                    ?right crm:P2_has_type ?right_type .
-                    ?right_type skos:prefLabel ?right_type_label .
-                    VALUES (?right_type) {
-                        (<https://data.skkg.ch/type/56153/255981>)
-                        (<https://data.skkg.ch/type/56153/255982>)
-                    }
+                FILTER NOT EXISTS {
+                    ?predecessor_right_status crm:P67_refers_to ?right .
+                    ?predecessor_right_status crm:P173i_ends_after_or_with_the_start_of ?original_right_status .
                 }
-
                 OPTIONAL {
-                    ?image crm:P104_is_subject_to ?original_right, ?successor_right .
-                    ?original_right crm:P75i_is_possessed_by ?original_right_holder .
-                    ?original_right_holder skos:prefLabel ?original_right_holder_label .
-                    ?successor_right crm:P75i_is_possessed_by ?successor_right_holder .
-                    ?successor_right_holder skos:prefLabel ?successor_right_holder_label .
-                    ?successor_right_status crm:P67_refers_to ?successor_right .
+                    ?image crm:P104_is_subject_to ?original_right .
+                    ?right_status crm:P67_refers_to ?right .
                     ?original_right_status crm:P67_refers_to ?original_right .
-                    ?original_right_status crm:P173i_ends_after_or_with_the_start_of ?successor_right_status .
-                    ?successor_right_status crm:P4_has_time-span/crm:P82b_end_of_the_end ?successor_right_end_year .
-                }
-
-                OPTIONAL {
-                    ?right_status a crmaaa:ZE30_Property_Right_Status ;
-                        crm:P67_refers_to ?right ;
-                        crm:P4_has_time-span/crm:P82b_end_of_the_end ?right_date .
-                }
-
-                OPTIONAL {
-                    ?image crm:P94i_was_created_by/crm:P9_consists_of ?photography .
-                    ?photography crm:P2_has_type aat:300054225 .
-                
+                    ?original_right_status crm:P173i_ends_after_or_with_the_start_of ?right_status .
                     OPTIONAL {
-                        ?photography crm:P14_carried_out_by/skos:prefLabel ?photographer .
-                    }
-                
-                    OPTIONAL {
-                        ?photography crm:P4_has_time-span/crm:P82_at_some_time_within ?photography_date .
+                        ?original_right crm:P75i_is_possessed_by ?original_rights_holder .
+                        ?original_rights_holder crm:P1_is_identified_by/crm:P106_is_composed_of ?original_right_holder_name_entity .
+                        ?original_right_holder_name_entity crm:P2_has_type ?name_type ;
+                            crm:P190_has_symbolic_content ?original_right_holder_name .
                     }
                 }
-
+                OPTIONAL {
+                    ?right crm:P2_has_type/skos:prefLabel ?right_type .
+                    FILTER(LANG(?right_type) = "de")
+                }
+                OPTIONAL {
+                    ?right crm:P75i_is_possessed_by ?rights_holder .
+                    ?rights_holder crm:P1_is_identified_by/crm:P106_is_composed_of ?right_holder_name_entity .
+                    ?right_holder_name_entity crm:P2_has_type ?name_type ;
+                        crm:P190_has_symbolic_content ?right_holder_name .
+                    VALUES (?name_type) {
+                        (aat:300404652)
+                        (aat:300404688)
+                    }
+                    FILTER NOT EXISTS {
+                        ?right_status crm:P67_refers_to ?right .
+                        ?right_status crm:P173i_ends_after_or_with_the_start_of ?successor_right_status .
+                    }
+                }
+                OPTIONAL {
+                    ?right_status crm:P67_refers_to ?right .
+                    ?right_status crm:P4_has_time-span/crm:P82b_end_of_the_end ?right_year .
+                }
+                OPTIONAL {
+                    ?right crm:P3_has_note ?right_note
+                }
+                OPTIONAL {
+                    ?image crm:P94i_was_created_by ?creation .
+                    OPTIONAL {
+                    ?creation crm:P14_carried_out_by ?creator .
+                        ?creator crm:P1_is_identified_by/crm:P106_is_composed_of ?creator_name_entity .
+                        ?creator_name_entity crm:P2_has_type ?name_type ;
+                            crm:P190_has_symbolic_content ?creator_name .
+                        VALUES (?name_type) {
+                            (aat:300404652)
+                            (aat:300404688)
+                        }
+                    }
+                    OPTIONAL {
+                        ?creation crm:P9_consists_of ?photography .
+                        ?photography crm:P2_has_type aat:300054225 ;
+                                    crm:P4_has_time-span/crm:P82_at_some_time_within ?photography_date .
+                        BIND(YEAR(?photography_date) as ?photography_year)
+                        
+                    }
+                }
                 BIND(
-                    CONCAT(
-                        "© ",
-                        COALESCE(?successor_right_holder_label, ""), 
-                        IF(BOUND(?right_date), CONCAT(" / ", YEAR(?right_date)), ""), 
-                        IF(BOUND(?original_right_holder_label), CONCAT(" ", ?original_right_holder_label), ""), 
-                        IF(BOUND(?right_date) || BOUND(?original_right_holder_label), ". ", ""),
-                        IF(
-                        BOUND(?photography), 
-                        CONCAT(
-                            "Foto:", 
-                            IF(BOUND(?photographer), CONCAT(" ", ?photographer), ""), 
-                            IF(BOUND(?photography_date), CONCAT(" ", STR(YEAR(?photography_date))), "")
-                        ), 
-                        ""
-                        ),
-                        IF(BOUND(?right_type_label), CONCAT(" ", ?right_type_label), "")
-                    ) 
-                    AS ?value
+                CONCAT(
+                    ?right_type, " ", 
+                    IF(BOUND(?original_right_holder_name), CONCAT(?original_right_holder_name, "/"), ""), 
+                    IF(BOUND(?right_year), CONCAT(xsd:string(?right_year), ", "), ""), 
+                    IF(BOUND(?right_holder_name), ?right_holder_name, ""), 
+                    IF(
+                        BOUND(?creator_name) || BOUND(?photography_year), 
+                        CONCAT(IF(BOUND(?original_right_holder_name) || BOUND(?right_year) || BOUND(?right_holder_name), ". Foto:", "Foto:"), 
+                            IF(BOUND(?creator_name), CONCAT(" ", ?creator_name), ""),
+                            IF(BOUND(?photography_year), CONCAT(" ", xsd:string(?photography_year)), "")
+                    ),"")
+                ) 
+                AS ?value
                 )
-            } 
+            
+            }
             
 
 options:
