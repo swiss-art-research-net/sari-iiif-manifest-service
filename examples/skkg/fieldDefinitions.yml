@@ -951,7 +951,6 @@ fields:
 
 display:
 - mp_inv_nr
-- mp_inv_remark
 - mp_pers_korp_obj
 - mp_titel_obj
 - mp_datierung
