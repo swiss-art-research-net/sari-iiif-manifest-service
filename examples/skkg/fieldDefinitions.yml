@@ -17,6 +17,7 @@ namespaces:
   skkg: https://ontology.skkg.ch/
   skos: http://www.w3.org/2004/02/skos/core#
   type: https://data.skkg.ch/type/
+  xsd: http://www.w3.org/2001/XMLSchema#
 
 fields:
 
@@ -926,8 +927,8 @@ fields:
         - select: 'SELECT ?value WHERE {
             $subject crm:P34i_was_assessed_by ?assessment .
             {
-              SELECT DISTINCT ?assessment (GROUP_CONCAT(DISTINCT ?state;SEPARATOR="/") as ?state) ?note ?date WHERE  {
-                ?assessment crm:P35_has_identified/rdfs:label ?state .
+              SELECT DISTINCT ?assessment (GROUP_CONCAT(DISTINCT ?state_in;SEPARATOR="/") as ?state_concat) ?note ?date WHERE  {
+                ?assessment crm:P35_has_identified/rdfs:label ?state_in .
                 OPTIONAL {
                   ?assessment crm:P3_has_note ?note .
                 }
@@ -936,7 +937,7 @@ fields:
                 }
               } GROUP BY ?assessment ?note ?date
             }
-            BIND(CONCAT(?state, IF(BOUND(?note),CONCAT(": ",?note," "),""), IF(BOUND(?date),CONCAT(" (", str(?date), ")"),"")) AS ?value)
+            BIND(CONCAT(?state_concat, IF(BOUND(?note),CONCAT(": ",?note," "),""), IF(BOUND(?date),CONCAT(" (", str(?date), ")"),"")) AS ?value)
           }'
 
     - id: same_as
