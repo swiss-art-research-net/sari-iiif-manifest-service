@@ -142,6 +142,7 @@ rights:
             PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
             PREFIX crmaaa: <https://takin.solutions/ontologies/crmaaa/>
             PREFIX aat: <http://vocab.getty.edu/aat/>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             SELECT DISTINCT ?label ?value WHERE {
                 BIND("Credit:" as ?label)
                 ?image la:digitally_shown_by/la:digitally_available_via/la:access_point $subject .
