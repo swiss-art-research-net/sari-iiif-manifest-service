@@ -15,30 +15,28 @@ spec:
       labels:
         app: sari-iiif-manifest
     spec:
-      imagePullSecrets:
-      - name: registry-jb-secret
       initContainers:
       - name: init-copy-config
-        image: registry.digitalocean.com/registry-jb/sari-iiif-manifest-service:1.1.0
+        image: swissartresearx/sari-iiif-manifest-service:k8s
         command: ["/bin/sh", "-c"]
         args:
           - |
-            echo "Copying config files to PVC..."
-            cp /skkg-config/config.yml /config/config.yml
-            cp /skkg-config/fieldDefinitions.yml /config/fieldDefinitions.yml
-            echo "Config files copied successfully."
+            echo "Downloading config files..."
+            curl -o /config/config.yml https://raw.githubusercontent.com/swiss-art-research-net/sari-iiif-manifest-service/refs/heads/kubernetes-configuration/examples/skkg/config.yml
+            curl -o /config/fieldDefinitions.yml https://raw.githubusercontent.com/swiss-art-research-net/sari-iiif-manifest-service/refs/heads/kubernetes-configuration/examples/skkg/fieldDefinitions.yml
+            echo "Config files downloaded successfully."
         volumeMounts:
           - name: config-volume
             mountPath: /config
       containers:
       - name: sari-iiif-manifest
-        image: registry.digitalocean.com/registry-jb/sari-iiif-manifest-service:1.1.0
+        image: swissartresearx/sari-iiif-manifest-service:k8s
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
         env:
           - name: CONFIG_YML
-            value: "/skkg-config/config.yml"
+            value: "/config/config.yml"
           - name: SPARQL_ENDPOINT
             value: "http://104.248.100.4:7019"
         volumeMounts:
