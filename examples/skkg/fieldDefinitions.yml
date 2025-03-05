@@ -878,13 +878,27 @@ fields:
       domain: skkg:Person
       queries:
         - select: 'SELECT ?value WHERE {
-          $subject crm:P1_is_identified_by ?name .
-          ?name crm:P2_has_type ?name_type ;
-            crm:P190_has_symbolic_content ?name_label .
-          ?name_type crm:P127_has_broader_term type:21100 ;
-            skos:prefLabel ?name_type_label .
-          BIND(CONCAT(?name_label, " (", ?name_type_label, ")") AS ?value)
-        }'
+            $subject crm:P1_is_identified_by ?name .
+            ?name crm:P2_has_type ?name_type ;
+              crm:P190_has_symbolic_content ?name_label .
+            ?name_type crm:P127_has_broader_term type:21100 ;
+              skos:prefLabel ?name_type_label .
+            BIND(CONCAT(?name_label, " (", ?name_type_label, ")") AS ?value)
+          }'
+
+    - id: mp_weitere_nummern
+      label: Weitere Nummern
+      datatype: xsd:string
+      domain: skkg:Object
+      queries:
+        - select: 'SELECT ?value WHERE {
+            $subject crm:P1_is_identified_by ?identifier .
+            ?identifier crm:P2_has_type ?type ;
+              crm:P190_has_symbolic_content ?content .
+            ?type crm:P127_has_broader_term type:42134 ;
+              skos:prefLabel ?type_label .
+            BIND(CONCAT(?content, " (", ?type_label, ")") AS ?value)
+          }'
         
     - id: mp_werkbezuege_exh
       label: Werkbezüge
@@ -951,6 +965,8 @@ fields:
 
 display:
 - mp_inv_nr
+- mp_weitere_nummern
+- mp_inv_remark
 - mp_pers_korp_obj
 - mp_titel_obj
 - mp_datierung
