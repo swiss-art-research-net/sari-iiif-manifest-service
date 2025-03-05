@@ -203,9 +203,8 @@ class FieldConnector:
             namespaces += "PREFIX " + prefix + ": <" + namespace + ">\n"
         
         types = self.getTypesForSubject(subject)
-
         for field in self.fields.values():
-            if 'domain' in field and not any([t in types for t in field['domain']]):
+            if 'domain' in field and not field['domain'] in types:
                 continue
             query = namespaces + field['query'].replace("$subject", "<%s>" % subject).replace("?subject", "<%s>" % subject)
             self.sparql.setQuery(query)
