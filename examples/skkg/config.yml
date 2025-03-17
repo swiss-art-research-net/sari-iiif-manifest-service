@@ -142,14 +142,17 @@ rights:
             PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
             PREFIX crmaaa: <https://takin.solutions/ontologies/crmaaa/>
             PREFIX aat: <http://vocab.getty.edu/aat/>
+
             SELECT DISTINCT ?label ?value WHERE {
-                BIND("Credit:" as ?label)
+                BIND("Credit:" AS ?label)
                 ?image la:digitally_shown_by/la:digitally_available_via/la:access_point $subject .
                 ?image crm:P104_is_subject_to ?right .
-                FILTER NOT EXISTS {
+                OPTIONAL {
                     ?predecessor_right_status crm:P67_refers_to ?right .
                     ?predecessor_right_status crm:P173i_ends_after_or_with_the_start_of ?original_right_status .
-                }
+                    BIND(BOUND(?predecessor_right_status) AS ?has_predecessor)
+                }                
+                FILTER(!BOUND(?has_predecessor))  # Simulating FILTER NOT EXISTS
                 OPTIONAL {
                     ?image crm:P104_is_subject_to ?original_right .
                     ?right_status crm:P67_refers_to ?right .
@@ -175,22 +178,24 @@ rights:
                         (aat:300404652)
                         (aat:300404688)
                     }
-                    FILTER NOT EXISTS {
+                    OPTIONAL {
                         ?right_status crm:P67_refers_to ?right .
                         ?right_status crm:P173i_ends_after_or_with_the_start_of ?successor_right_status .
+                        BIND(BOUND(?successor_right_status) AS ?has_successor)
                     }
+                    FILTER(!BOUND(?has_successor))
                 }
                 OPTIONAL {
                     ?right_status crm:P67_refers_to ?right .
                     ?right_status crm:P4_has_time-span/crm:P82b_end_of_the_end ?right_year .
-                }
+                }                
                 OPTIONAL {
                     ?right crm:P3_has_note ?right_note
-                }
+                }                
                 OPTIONAL {
                     ?image crm:P94i_was_created_by ?creation .
                     OPTIONAL {
-                    ?creation crm:P14_carried_out_by ?creator .
+                        ?creation crm:P14_carried_out_by ?creator .
                         ?creator crm:P1_is_identified_by/crm:P106_is_composed_of ?creator_name_entity .
                         ?creator_name_entity crm:P2_has_type ?name_type ;
                             crm:P190_has_symbolic_content ?creator_name .
@@ -203,26 +208,24 @@ rights:
                         ?creation crm:P9_consists_of ?photography .
                         ?photography crm:P2_has_type aat:300054225 ;
                                     crm:P4_has_time-span/crm:P82_at_some_time_within ?photography_date .
-                        BIND(YEAR(?photography_date) as ?photography_year)
-                        
+                        BIND(YEAR(?photography_date) AS ?photography_year)
                     }
-                }
+                }                
                 BIND(
-                CONCAT(
-                    ?right_type, " ", 
-                    IF(BOUND(?original_right_holder_name), CONCAT(?original_right_holder_name, "/"), ""), 
-                    IF(BOUND(?right_year), CONCAT(xsd:string(?right_year), ", "), ""), 
-                    IF(BOUND(?right_holder_name), ?right_holder_name, ""), 
-                    IF(
-                        BOUND(?creator_name) || BOUND(?photography_year), 
-                        CONCAT(IF(BOUND(?original_right_holder_name) || BOUND(?right_year) || BOUND(?right_holder_name), ". Foto:", "Foto:"), 
-                            IF(BOUND(?creator_name), CONCAT(" ", ?creator_name), ""),
-                            IF(BOUND(?photography_year), CONCAT(" ", xsd:string(?photography_year)), "")
-                    ),"")
-                ) 
-                AS ?value
+                    CONCAT(
+                        ?right_type, " ", 
+                        IF(BOUND(?original_right_holder_name), CONCAT(?original_right_holder_name, "/"), ""), 
+                        IF(BOUND(?right_year), CONCAT(STR(?right_year), ", "), ""), 
+                        IF(BOUND(?right_holder_name), ?right_holder_name, ""), 
+                        IF(
+                            BOUND(?creator_name) || BOUND(?photography_year), 
+                            CONCAT(IF(BOUND(?original_right_holder_name) || BOUND(?right_year) || BOUND(?right_holder_name), ". Foto:", "Foto:"), 
+                                IF(BOUND(?creator_name), CONCAT(" ", ?creator_name), ""),
+                                IF(BOUND(?photography_year), CONCAT(" ", STR(?photography_year)), "")
+                            ),"")
+                    ) 
+                    AS ?value
                 )
-            
             }
             
 
