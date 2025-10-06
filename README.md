@@ -42,6 +42,8 @@ The config file is a YAML file with the following structure:
 fieldDefinitionsFile: "path/to/field-definitions.yml"
 cache:
     expiration: "1w"
+aliases:
+    ...
 namespaces:
     entities: "https://example.org/"
     manifests: "http://iiif.example.com/manifest/"
