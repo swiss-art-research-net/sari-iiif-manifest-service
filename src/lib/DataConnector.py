@@ -81,7 +81,7 @@ class FieldConnector:
                  thumbnailQueryTemplate = None,
                  username: str | None = None,
                  password: str | None = None,
-                 httpAuth: str = "BASIC",
+                 httpAuth: str | None = None,
                  bearerToken: str | None = None,
                  extraHeaders: dict | None = None,
                  timeout: int | None = 30,
