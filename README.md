@@ -30,6 +30,29 @@ The config file that the service uses can be specified using the `CONFIG_YML` en
 
 A default field definitions file is provided. To use your own metadata fields, create a copy of the file and edit it accordingly or use one from an existing project. The path to the field definitions file can be specified in the `config.yml` file.
 
+### Authentication (optional)
+
+The service supports authentication when connecting to protected SPARQL endpoints.  
+By default, no authentication is used. It will connect anonymously unless credentials or tokens are provided via environment variables.
+
+To use authentication, set the following variables in your `.env` file as needed:
+
+```bash
+# Authentication method: BASIC, DIGEST, or leave empty for none
+SPARQL_HTTP_AUTH=BASIC
+
+# Username and password (for BASIC or DIGEST)
+SPARQL_USERNAME=myuser
+SPARQL_PASSWORD=mypassword
+
+# Alternatively, use a bearer token
+SPARQL_BEARER_TOKEN=eyJhbGciOi...
+
+# Optional connection settings
+SPARQL_TIMEOUT=30          # request timeout in seconds (default: 30)
+SPARQL_REQUEST_METHOD=GET  # or POST
+```
+
 ### Running the service
 
 Run `docker-compose up -d` to start the service. When using the service in production, comment out the respective lines in the `.env` file.
