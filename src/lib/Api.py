@@ -7,6 +7,7 @@ Usage:
 """
 
 import os
+from typing import Any
 import yaml
 import sys
 
@@ -17,7 +18,7 @@ from lib.IiifManifestGenerator import IiifManifestGenerator
 cache = Cache('/cache')
 class Api:
 
-    def __init__(self, configYmlPath: str, sparqlEndpoint: str):
+    def __init__(self, configYmlPath: str, sparqlEndpoint: str, **authenticationKwargs: Any):
         # Read the configuration YAML file
         with open(configYmlPath, 'r') as f:
             self.config = yaml.safe_load(f)
@@ -62,7 +63,8 @@ class Api:
             sparqlEndpoint=sparqlEndpoint,
             labelQueryTemplate=self.config['queries']['label'],
             imageQueryTemplate=self.config['queries']['images'],
-            thumbnailQueryTemplate=thumbnailQueryTemplate)
+            thumbnailQueryTemplate=thumbnailQueryTemplate,
+            **{k: v for k, v in authenticationKwargs.items() if v is not None})
         self.connector.loadFieldDefinitionsFromFile(self.config['fieldDefinitionsFile'])
 
         cache.setExpiration(self.config['cache']['expiration'])

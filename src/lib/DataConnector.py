@@ -83,7 +83,6 @@ class FieldConnector:
                  password: str | None = None,
                  httpAuth: str | None = None,
                  bearerToken: str | None = None,
-                 extraHeaders: dict | None = None,
                  timeout: int | None = 30,
                  requestMethod: str = "GET"
                 ):
@@ -102,9 +101,6 @@ class FieldConnector:
         if username and password:
             self.sparql.setHTTPAuth(BASIC if httpAuth.upper() == "BASIC" else DIGEST)
             self.sparql.setCredentials(username, password)
-        if extraHeaders:
-            for k, v in extraHeaders.items():
-                self.sparql.addCustomHttpHeader(k, v)
 
         if timeout is not None:
             self.sparql.setTimeout(timeout)
