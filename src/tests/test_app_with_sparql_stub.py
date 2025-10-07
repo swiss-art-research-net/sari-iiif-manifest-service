@@ -17,7 +17,6 @@ def make_stub_app() -> FastAPI:
     @app.api_route("/sparql", methods=["GET", "POST"])
     async def sparql(request: Request):
         query = request.query_params.get("query")
-        print(query)
         if not query:
             body = (await request.body()).decode("utf-8", errors="ignore")
             # very lenient: look for "query=" then decode-ish
@@ -27,7 +26,6 @@ def make_stub_app() -> FastAPI:
                 query = query.replace("%0A", "\n").replace("%20", " ").replace("+", " ")
 
         q = (query or "").lower()
-        print(q)
         if "nonexistent_id" in q:
             return JSONResponse({"head": {"vars": []}, "results": {"bindings": []}},
                                 media_type="application/sparql-results+json")
