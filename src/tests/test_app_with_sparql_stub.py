@@ -10,6 +10,11 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
 
+class NoOpCache:
+    def cache(self, fn):
+        return fn
+    def setExpiration(self, *_):
+        pass
 
 def make_stub_app() -> FastAPI:
     app = FastAPI()
@@ -87,7 +92,6 @@ def make_stub_app() -> FastAPI:
 
     return app
 
-
 def wait_port(host: str, port: int, timeout: float = 5.0):
     start = time.time()
     while time.time() - start < timeout:
@@ -116,23 +120,24 @@ def sparql_stub():
 
 
 @pytest.fixture
-def client(monkeypatch, sparql_stub, tmp_path):
+def client(monkeypatch, sparql_stub):
+    import sys, importlib
+
     monkeypatch.setenv("SPARQL_ENDPOINT", sparql_stub)
-
-    cfg = "/config/default.yml"
-
-    monkeypatch.setenv("CONFIG_YML", str(cfg))
+    monkeypatch.setenv("CONFIG_YML", "/config/default.yml")
     monkeypatch.setenv("SPARQL_TIMEOUT", "30")
     monkeypatch.setenv("SPARQL_REQUEST_METHOD", "GET")
 
-    import sys
-    if "main" in sys.modules:
-        importlib.reload(sys.modules["main"])
-        main = sys.modules["main"]
-    else:
-        import main  # noqa: F401
-        main = importlib.import_module("main")
+    import lib.Cache as cache_mod
+    monkeypatch.setattr(cache_mod, "Cache", lambda *_a, **_k: NoOpCache(), raising=True)
 
+    sys.modules.pop("lib.Api", None)
+    sys.modules.pop("main", None)
+
+    import main
+    importlib.reload(main)
+
+    from fastapi.testclient import TestClient
     return TestClient(main.app)
 
 
