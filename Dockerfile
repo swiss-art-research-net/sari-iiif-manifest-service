@@ -7,7 +7,8 @@ RUN apt-get -qq update && \
 RUN locale-gen en_US.UTF-8
 
 # Install Python packages
-RUN pip install fastapi "uvicorn[standard]" sparqlwrapper iiif-prezi3==2.0.2 pytest pytest-cov httpx
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 # Add scripts
 ADD ./src /src
