@@ -74,7 +74,10 @@ class Api:
     def getManifest(self, *, type: str, id: str) -> dict:
         subject = f"{self.config['namespaces']['entities']}{type}/{id}"
         manifestId = f"{type}/{id}"
-        data = self.getDataForSubject(subject)
+        try:
+            data = self.getDataForSubject(subject)
+        except Exception as e:
+            raise Exception(f"Error retrieving data for subject '{subject}': {str(e)}")
         return self.manifest.generate(
             id=manifestId,
             label=data['label'],

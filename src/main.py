@@ -12,7 +12,7 @@ To run the application, use a command like 'uvicorn main:app'.
 
 import os
 import yaml
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -64,7 +64,12 @@ def readRoot():
 
 @app.get("/manifest/{item_type}/{item_id}")
 def getManifest(item_type: str, item_id: str):
-    return api.getManifest(type=item_type, id=item_id)
+    try:
+        manifest = api.getManifest(type=item_type, id=item_id)
+        return manifest
+    except Exception as e:
+        print(f"Error retrieving manifest for {item_type}/{item_id}: {e}")
+        raise HTTPException(status_code=500, detail="Could not retrieve manifest. Does the item exist?")
 
 # Register aliases dynamically
 for alias in aliases:
