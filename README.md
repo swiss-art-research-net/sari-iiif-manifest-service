@@ -42,6 +42,8 @@ The config file is a YAML file with the following structure:
 fieldDefinitionsFile: "path/to/field-definitions.yml"
 cache:
     expiration: "1w"
+aliases:
+    ...
 namespaces:
     entities: "https://example.org/"
     manifests: "http://iiif.example.com/manifest/"
@@ -52,17 +54,34 @@ queries:
             $subject skos:prefLabel ?label .
         } LIMIT 1
     images: |
-        PREFIX aat: <http://vocab.getty.edu/aat/>
-        PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
-        PREFIX la: <https://linked.art/ns/terms/>
         SELECT ?image ?width ?height WHERE {
-            $subject la:digitally_shown_by ?imageObject .
-            ?imageObject la:digitally_available_via/la:access_point ?image ;
-                crm:P43_has_dimension ?dimWidth ;
-                crm:P43_has_dimension ?dimHeight .
-            ?dimWidth crm:P2_has_type aat:300055647 ;
-                crm:P90_has_value ?width .
-            ?dimHeight crm:P2_has_type aat:300055644 ;
-                crm:P90_has_value ?height .
+            ...
         }
+    thumbnails: |
+        SELECT ?thumbnail ?width ?height WHERE {
+            ...
+        }
+rights:
+    manifest:
+        rightsQuery: |
+            SELECT ?value WHERE {
+                ...
+            }
+        requiredStatementQuery: |
+            SELECT ?label ?value WHERE {
+                ...
+            }
+    images:
+        rightsQuery: |
+            SELECT ?value WHERE {
+                ...
+            }
+        requiredStatementQuery: |
+            SELECT ?label ?value WHERE {
+                ...
+
+options:
+    ...
 ```
+
+For details on the individual config options, please refer to the comments in the `config/default.yml` file.
