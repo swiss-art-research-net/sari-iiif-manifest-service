@@ -26,7 +26,7 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: examples/skkg
           file: examples/skkg/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
