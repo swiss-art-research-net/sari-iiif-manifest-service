@@ -38,7 +38,7 @@ spec:
           - name: CONFIG_YML
             value: "/config/config.yml"
           - name: SPARQL_ENDPOINT
-            value: "http://104.248.100.4:7019"
+            value: "https://sparql.digital.skkg.ch/"
         volumeMounts:
           - name: config-volume
             mountPath: /config
