@@ -28,6 +28,6 @@ jobs:
         with:
           context: .
           file: examples/skkg/Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: swissartresearx/sari-iiif-manifest-service:k8s
