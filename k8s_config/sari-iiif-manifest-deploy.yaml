@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sari-iiif-manifest
+  namespace: qlever
+  labels:
+    app: sari-iiif-manifest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sari-iiif-manifest
+  template:
+    metadata:
+      labels:
+        app: sari-iiif-manifest
+    spec:
+      initContainers:
+      - name: init-copy-config
+        image: swissartresearx/sari-iiif-manifest-service:k8s
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "Downloading config files..."
+            curl -o /config/config.yml https://raw.githubusercontent.com/swiss-art-research-net/sari-iiif-manifest-service/refs/heads/kubernetes-configuration/examples/skkg/config.yml
+            curl -o /config/fieldDefinitions.yml https://raw.githubusercontent.com/swiss-art-research-net/sari-iiif-manifest-service/refs/heads/kubernetes-configuration/examples/skkg/fieldDefinitions.yml
+            echo "Config files downloaded successfully."
+        volumeMounts:
+          - name: config-volume
+            mountPath: /config
+      containers:
+      - name: sari-iiif-manifest
+        image: swissartresearx/sari-iiif-manifest-service:k8s
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+          - name: CONFIG_YML
+            value: "/config/config.yml"
+          - name: SPARQL_ENDPOINT
+            value: "https://sparql.digital.skkg.ch/"
+        volumeMounts:
+          - name: config-volume
+            mountPath: /config
+          - name: cache-volume
+            mountPath: /cache
+      volumes:
+        - name: config-volume
+          persistentVolumeClaim:
+            claimName: config-pvc
+        - name: cache-volume
+          persistentVolumeClaim:
+            claimName: cache-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sari-iiif-manifest-service
+  namespace: qlever
+spec:
+  selector:
+    app: sari-iiif-manifest
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer
+  

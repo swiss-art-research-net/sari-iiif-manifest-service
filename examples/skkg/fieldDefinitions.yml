@@ -941,7 +941,7 @@ fields:
         - select: 'SELECT ?value WHERE {
             $subject crm:P34i_was_assessed_by ?assessment .
             {
-              SELECT DISTINCT ?assessment (GROUP_CONCAT(DISTINCT ?state_in;SEPARATOR="/") as ?state_concat) ?note ?date WHERE  {
+              SELECT DISTINCT ?assessment (GROUP_CONCAT(DISTINCT ?state_in; SEPARATOR="/") as ?state_concat) ?note ?date WHERE  {
                 ?assessment crm:P35_has_identified/rdfs:label ?state_in .
                 OPTIONAL {
                   ?assessment crm:P3_has_note ?note .
