@@ -35,7 +35,7 @@ Methods:
 
 import os
 import yaml
-from SPARQLWrapper import SPARQLWrapper, JSON
+from SPARQLWrapper import SPARQLWrapper, JSON, BASIC, DIGEST
 
 from string import Template
 class FieldConnector:
@@ -74,12 +74,18 @@ class FieldConnector:
             }
         """
 
-    def __init__(self, *, 
-                 sparqlEndpoint: str, 
-                 labelQueryTemplate=LABEL_QUERY, 
-                 imageQueryTemplate=IMAGE_QUERY, 
-                 thumbnailQueryTemplate=None
-        ):
+    def __init__(self, *,
+                 sparqlEndpoint: str,
+                 labelQueryTemplate = LABEL_QUERY,
+                 imageQueryTemplate = IMAGE_QUERY,
+                 thumbnailQueryTemplate = None,
+                 username: str | None = None,
+                 password: str | None = None,
+                 httpAuth: str | None = None,
+                 bearerToken: str | None = None,
+                 timeout: int | None = 30,
+                 requestMethod: str = "GET"
+                ):
         self.endpoint = sparqlEndpoint
         self.fields = {}
         self.namespaces = {}
@@ -87,14 +93,26 @@ class FieldConnector:
         self.imageQueryTemplate = imageQueryTemplate
         self.thumbnailQueryTemplate = thumbnailQueryTemplate
 
-        # Test connection
         self.sparql = SPARQLWrapper(self.endpoint)
         self.sparql.setReturnFormat(JSON)
+
+        if bearerToken:
+            self.sparql.addCustomHttpHeader("Authorization", f"Bearer {bearerToken}")  # uses Authorization header
+        if username and password:
+            self.sparql.setHTTPAuth(BASIC if httpAuth.upper() == "BASIC" else DIGEST)
+            self.sparql.setCredentials(username, password)
+
+        if timeout is not None:
+            self.sparql.setTimeout(timeout)
+        if requestMethod.upper() in ("GET", "POST"):
+            self.sparql.setMethod(requestMethod.upper())
+
+        # Test connection
         self.sparql.setQuery("SELECT ?s ?p ?o WHERE {?s ?p ?o} LIMIT 1")
         try:
             self.sparql.query().convert()
-        except:
-            raise Exception("Could not connect to SPARQL endpoint.")
+        except Exception as e:
+            raise Exception(f"Could not connect to SPARQL endpoint: {e}")
 
     def loadFieldDefinitionsFromFile(self, inputFile: str):
         """
